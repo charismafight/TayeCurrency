@@ -1,0 +1,61 @@
+{
+  "folders": [
+    {
+      "name": "TayeCurrency",
+      "path": ".",
+    },
+    {
+      "name": "Taye.Shared",
+      "path": "Taye.Shared",
+    },
+    {
+      "name": "Taye.WebAPI",
+      "path": "Taye.WebAPI",
+    },
+    {
+      "name": "Taye.MAUI",
+      "path": "Taye.MAUI",
+    },
+  ],
+  "settings": {
+    // .NET 相关配置
+    "dotnet.defaultSolution": "TayeCurrency.sln",
+    "dotnet.enablePackageRestore": true,
+
+    // OmniSharp 配置
+    "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
+    "omnisharp.enableEditorConfigSupport": true,
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.enableImportCompletion": true,
+    "omnisharp.projectLoadTimeout": 120,
+
+    // 文件关联
+    "files.associations": {
+      "*.xaml": "xml",
+      "*.csproj": "xml",
+      "*.xml": "xml",
+    },
+
+    // 编辑器设置
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+    },
+
+    // 排除文件
+    "files.exclude": {
+      "**/bin": true,
+      "**/obj": true,
+      "**/.git": true,
+    },
+
+    // 搜索排除
+    "search.exclude": {
+      "**/bin": true,
+      "**/obj": true,
+    },
+  },
+  "extensions": {
+    "recommendations": ["ms-dotnettools.csharp", "ms-dotnettools.csdevkit", "ms-dotnettools.vscode-dotnet-runtime", "muhammad-sammy.csharp-helper"],
+  },
+}
