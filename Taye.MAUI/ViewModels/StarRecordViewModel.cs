@@ -10,6 +10,10 @@ namespace Taye.MAUI.ViewModels;
 public partial class StarRecordViewModel : ObservableObject
 {
     private readonly IApiService _apiService;
+    private int _currentPage = 1;
+    private const int PageSize = 20;
+    private bool _hasMoreData = true;
+    private int _totalCount = 0;
 
     [ObservableProperty]
     private List<StarRecordDto> records = new();
@@ -21,6 +25,9 @@ public partial class StarRecordViewModel : ObservableObject
     private bool isLoading;
 
     [ObservableProperty]
+    private bool isLoadingMore;  // 是否正在加载更多
+
+    [ObservableProperty]
     private string? selectedDate;
 
     [ObservableProperty]
@@ -30,7 +37,7 @@ public partial class StarRecordViewModel : ObservableObject
     private string reason = string.Empty;
 
     [ObservableProperty]
-    private string type = "Gain"; // Gain 或 Spend
+    private string type = "奖励"; // 奖励、花费、惩罚
 
     [ObservableProperty]
     private string? notes;
@@ -39,30 +46,122 @@ public partial class StarRecordViewModel : ObservableObject
     private FileResult? selectedImage;
 
     [ObservableProperty]
-    private string? imagePreview;  // 添加这个属性
+    private string? imagePreview;
+
+    // 筛选相关属性
+    [ObservableProperty]
+    private DateTime startDate = DateTime.Today.AddDays(-7);  // 默认最近7天
+
+    [ObservableProperty]
+    private DateTime endDate = DateTime.Today;
+
+    [ObservableProperty]
+    private string? selectedFilterType = "全部";  // 筛选类型：全部、奖励、花费、惩罚
+
+    // 筛选类型选项
+    public List<string> FilterTypes { get; } = new List<string>
+    {
+        "全部",
+        "奖励",
+        "花费",
+        "惩罚"
+    };
 
     public StarRecordViewModel(IApiService apiService)
     {
         _apiService = apiService;
-        SelectedDate = DateTime.Today.ToString("yyyy-MM-dd");
+        SelectedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     [RelayCommand]
     public async Task LoadData()
     {
         IsLoading = true;
+        _currentPage = 1;
+        _hasMoreData = true;
+        _totalCount = 0;
+
         try
         {
-            var startDate = DateTime.Today.AddDays(-30);
-            var endDate = DateTime.Today;
-
-            Records = await _apiService.GetRecordsAsync(startDate, endDate, FilterType);
-            Statistics = await _apiService.GetStatisticsAsync();
+            await LoadRecords();
+            await LoadStatistics();
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    private async Task LoadRecords()
+    {
+        // 转换类型：中文转英文
+        string? typeValue = null;
+        if (SelectedFilterType != "全部")
+        {
+            typeValue = SelectedFilterType switch
+            {
+                "奖励" => "Gain",
+                "花费" => "Spend",
+                "惩罚" => "Punish",
+                _ => null
+            };
+        }
+
+        // 调用分页 API
+        var result = await _apiService.GetRecordsPagedAsync(StartDate, EndDate, typeValue, _currentPage, PageSize);
+
+        if (_currentPage == 1)
+        {
+            Records = result.Items;
+        }
+        else
+        {
+            var newList = new List<StarRecordDto>(Records);
+            newList.AddRange(result.Items);
+            Records = newList;
+        }
+
+        _hasMoreData = result.HasNextPage;
+        _totalCount = result.TotalCount;
+    }
+
+    [RelayCommand]
+    public async Task LoadMore()
+    {
+        if (IsLoadingMore || !_hasMoreData) return;
+
+        IsLoadingMore = true;
+        try
+        {
+            _currentPage++;
+            await LoadRecords();
+        }
+        finally
+        {
+            IsLoadingMore = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task FilterRecords()
+    {
+        IsLoading = true;
+        _currentPage = 1;
+        _hasMoreData = true;
+        try
+        {
+            await LoadRecords();
+            await LoadStatistics();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task LoadStatistics()
+    {
+        Statistics = await _apiService.GetStatisticsAsync();
     }
 
     [RelayCommand]
@@ -74,9 +173,9 @@ public partial class StarRecordViewModel : ObservableObject
             return;
         }
 
-        if (StarCount <= 0)
+        if (StarCount < -1000 || StarCount > 1000)
         {
-            await Shell.Current.DisplayAlert("提示", "请输入星星数量", "确定");
+            await Shell.Current.DisplayAlert("提示", "星数范围必须在 -100 到 +100 之间", "确定");
             return;
         }
 
@@ -92,11 +191,20 @@ public partial class StarRecordViewModel : ObservableObject
                 imageFileName = SelectedImage.FileName;
             }
 
+            // 转换类型为英文（匹配后端枚举）
+            var typeValue = Type switch
+            {
+                "奖励" => "Gain",
+                "花费" => "Spend",
+                "惩罚" => "Punish",
+                _ => "Gain"
+            };
+
             var success = await _apiService.CreateRecordAsync(
                 DateTime.Parse(SelectedDate!),
                 StarCount,
                 Reason,
-                Type,
+                typeValue,
                 Notes,
                 imageStream,
                 imageFileName);
@@ -110,7 +218,7 @@ public partial class StarRecordViewModel : ObservableObject
                 Reason = string.Empty;
                 Notes = string.Empty;
                 SelectedImage = null;
-                ImagePreview = null;  // 清空预览
+                ImagePreview = null;
 
                 // 重新加载数据
                 await LoadData();
@@ -171,7 +279,7 @@ public partial class StarRecordViewModel : ObservableObject
             if (result != null)
             {
                 SelectedImage = result;
-                ImagePreview = result.FullPath;  // 设置预览路径
+                ImagePreview = result.FullPath;
             }
         }
         catch (Exception ex)
@@ -185,7 +293,6 @@ public partial class StarRecordViewModel : ObservableObject
     {
         try
         {
-            // 请求相机权限
             var status = await Permissions.RequestAsync<Permissions.Camera>();
             if (status != PermissionStatus.Granted)
             {
@@ -201,7 +308,7 @@ public partial class StarRecordViewModel : ObservableObject
             if (result != null)
             {
                 SelectedImage = result;
-                ImagePreview = result.FullPath;  // 设置预览路径
+                ImagePreview = result.FullPath;
             }
         }
         catch (Exception ex)
@@ -214,28 +321,21 @@ public partial class StarRecordViewModel : ObservableObject
     public void ClearImage()
     {
         SelectedImage = null;
-        ImagePreview = null;  // 清空预览
+        ImagePreview = null;
     }
 
-    [ObservableProperty]
-    private string? filterType;  // 筛选类型：Gain、Spend 或 null
-
-    // 添加编辑命令
     [RelayCommand]
     public async Task EditRecord(StarRecordDto record)
     {
-        // 跳转到编辑页面
         await Shell.Current.GoToAsync("edit", new Dictionary<string, object>
         {
             ["record"] = record
         });
     }
 
-    // 添加记录命令
     [RelayCommand]
     public async Task AddRecord()
     {
-        // 跳转到添加页面
         await Shell.Current.GoToAsync("add");
     }
 }

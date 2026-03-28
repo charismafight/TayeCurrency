@@ -76,6 +76,78 @@ public class StarRecordsController : ControllerBase
     }
 
     /// <summary>
+    /// 分页获取星星记录（支持分页）
+    /// </summary>
+    [HttpGet("paged")]
+    [ProducesResponseType(typeof(APIResponse<PagedResult<StarRecordDto>>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<APIResponse<PagedResult<StarRecordDto>>>> GetRecordsPaged(
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate,
+        [FromQuery] string? type,
+        [FromQuery] string? userId = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            // 限制最大每页数量
+            pageSize = Math.Min(pageSize, 100);
+            page = Math.Max(page, 1);
+
+            var query = _context.StarRecords.AsQueryable();
+
+            // 日期范围过滤
+            if (startDate.HasValue)
+                query = query.Where(r => r.Date >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(r => r.Date <= endDate.Value);
+
+            // 类型过滤
+            if (!string.IsNullOrEmpty(type))
+                query = query.Where(r => r.Type == type);
+
+            // 用户过滤（多用户支持）
+            if (!string.IsNullOrEmpty(userId))
+                query = query.Where(r => r.UserId == userId);
+
+            // 获取总记录数
+            var totalCount = await query.CountAsync();
+
+            // 分页查询
+            var records = await query
+                .OrderByDescending(r => r.Date)
+                .ThenByDescending(r => r.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => new StarRecordDto
+                {
+                    Id = r.Id,
+                    Date = r.Date,
+                    StarCount = r.StarCount,
+                    Reason = r.Reason,
+                    Type = r.Type,
+                    Notes = r.Notes
+                })
+                .ToListAsync();
+
+            var result = new PagedResult<StarRecordDto>
+            {
+                Items = records,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return Ok(APIResponse<PagedResult<StarRecordDto>>.Ok(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "分页获取星星记录失败");
+            return StatusCode(500, APIResponse<PagedResult<StarRecordDto>>.Fail("获取记录失败：" + ex.Message));
+        }
+    }
+
+    /// <summary>
     /// 根据ID获取单条记录
     /// </summary>
     [HttpGet("{id}")]
@@ -109,6 +181,7 @@ public class StarRecordsController : ControllerBase
             return StatusCode(500, APIResponse<StarRecordDto>.Fail("获取记录失败：" + ex.Message));
         }
     }
+
     /// <summary>
     /// 创建新的星星记录（支持图片上传）
     /// </summary>
@@ -156,7 +229,7 @@ public class StarRecordsController : ControllerBase
                 Notes = createDto.Notes,
                 ImagePath = imagePath,
                 ImageFileName = imageFileName,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
 
             _context.StarRecords.Add(record);

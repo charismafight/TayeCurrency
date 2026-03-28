@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Taye.WebAPI.Data;
+using Taye.WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.EnableDetailedErrors();
     }
 });
+
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
 
 var app = builder.Build();
 

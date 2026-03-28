@@ -1,149 +1,512 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
-             xmlns:viewmodel="clr-namespace:Taye.MAUI.ViewModels"
-             xmlns:converters="clr-namespace:Taye.MAUI.Converters"
-             x:Class="Taye.MAUI.MainPage"
-             Title="李太一的货币详情"
-             BackgroundColor="#F5F5F5"
-             x:DataType="viewmodel:StarRecordViewModel">
+<ContentPage
+    x:Class="Taye.MAUI.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:behaviors="clr-namespace:Taye.MAUI.Behaviors"
+    xmlns:converters="clr-namespace:Taye.MAUI.Converters"
+    xmlns:viewmodel="clr-namespace:Taye.MAUI.ViewModels"
+    Title="李太一货币记录"
+    x:DataType="viewmodel:StarRecordViewModel"
+    BackgroundColor="#F5F5F5">
 
     <ContentPage.Resources>
         <converters:TypeColorConverter x:Key="TypeColorConverter" />
         <converters:StarColorConverter x:Key="StarColorConverter" />
         <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
         <converters:IsNotNullConverter x:Key="IsNotNullConverter" />
+        <converters:TypeIconConverter x:Key="TypeIconConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto, *, Auto">
+    <Grid ColumnDefinitions="1*, 1*">
 
-        <!-- 顶部统计区（可滚动） -->
-        <ScrollView Grid.Row="0" MaximumHeightRequest="280">
-            <VerticalStackLayout Spacing="12" Padding="16">
+        <!--  ========== 左侧区域 ==========  -->
+        <Grid
+            Grid.Column="0"
+            Padding="10"
+            RowDefinitions="Auto, Auto, Auto, *"
+            RowSpacing="10">
 
-                <!-- 剩余星星卡片（原生 Frame 模拟卡片） -->
-                <Frame BackgroundColor="#512BD4"
-                       CornerRadius="24"
-                       Padding="20"
-                       HasShadow="False">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout>
-                            <Label Text="当前星星"
-                                   TextColor="White"
-                                   FontSize="14"
-                                   Opacity="0.9" />
-                            <Label Text="{Binding Statistics.CurrentBalance}"
-                                   TextColor="White"
-                                   FontSize="48"
-                                   FontAttributes="Bold" />
+            <!--  左侧第一行：统计信息  -->
+            <Frame
+                Grid.Row="0"
+                Padding="15,12"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+                <HorizontalStackLayout HorizontalOptions="Start" Spacing="12">
+                    <!--  总获得  -->
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="⭐ 总获得："
+                        TextColor="#666666"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="{Binding Statistics.TotalGain, FallbackValue=0}"
+                        TextColor="#FF6B6B"
+                        VerticalOptions="Center" />
+
+                    <!--  总消费  -->
+                    <Label
+                        Margin="12,0,0,0"
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="💸 总消费："
+                        TextColor="#666666"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="{Binding Statistics.TotalSpend, FallbackValue=0}"
+                        TextColor="#FF9800"
+                        VerticalOptions="Center" />
+
+                    <!--  当前剩余  -->
+                    <Label
+                        Margin="12,0,0,0"
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="💰 剩余："
+                        TextColor="#666666"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="24"
+                        Text="{Binding Statistics.CurrentBalance, FallbackValue=0}"
+                        TextColor="#52C41A"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Frame>
+
+            <!--  左侧第二行：文字提示  -->
+            <Frame
+                Grid.Row="1"
+                Padding="12"
+                BackgroundColor="#FFF9E6"
+                CornerRadius="8"
+                HasShadow="False">
+                <VerticalStackLayout Spacing="5">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        Text="💡 温馨提示"
+                        TextColor="#FF9800" />
+                    <Label
+                        FontSize="12"
+                        Text="适度游戏益脑，沉迷游戏伤身。记录进步每一天🚀。"
+                        TextColor="#666666" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!--  左侧第三行：表单区域  -->
+            <Frame
+                Grid.Row="2"
+                Padding="12"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="15">
+
+                        <!--  记录时间  -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="📅 记录时间"
+                                TextColor="#666666" />
+                            <Label
+                                Padding="10"
+                                BackgroundColor="#F5F5F5"
+                                FontSize="14"
+                                Text="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd HH:mm:ss}'}"
+                                TextColor="#333333" />
                         </VerticalStackLayout>
-                        <Label Text="⭐"
-                               Grid.Column="1"
-                               FontSize="48"
-                               TextColor="White"
-                               VerticalOptions="Center" />
-                    </Grid>
-                </Frame>
 
+                        <!--  类型  -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="🔖 类型"
+                                TextColor="#666666" />
+                            <Picker
+                                Title="请选择类型"
+                                BackgroundColor="#F5F5F5"
+                                FontSize="14"
+                                SelectedItem="{Binding Type}"
+                                TextColor="#333333">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>奖励</x:String>
+                                        <x:String>花费</x:String>
+                                        <x:String>惩罚</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </VerticalStackLayout>
 
+                        <!--  原因  -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="📝 原因"
+                                TextColor="#666666" />
+                            <Entry
+                                BackgroundColor="#F5F5F5"
+                                FontSize="14"
+                                HeightRequest="60"
+                                Placeholder="请输入原因"
+                                Text="{Binding Reason}"
+                                TextColor="#333333" />
+                        </VerticalStackLayout>
 
-                <!-- 筛选器（原生 Picker） -->
-                <Picker x:Name="FilterPicker"
-                        Title="筛选"
-                        Margin="0,4,0,0"
-                        BackgroundColor="White"
-                        SelectedIndex="0">
-                    <Picker.Items>
-                        <x:String>全部</x:String>
-                        <x:String>获得</x:String>
-                        <x:String>消费</x:String>
-                    </Picker.Items>
-                </Picker>
+                        <!--  星数  -->
+                        <VerticalStackLayout Spacing="5">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="⭐ 星数"
+                                TextColor="#666666" />
+                            <Grid ColumnDefinitions="*, Auto, *" ColumnSpacing="10">
+                                <Entry
+                                    Grid.Column="0"
+                                    BackgroundColor="#F5F5F5"
+                                    FontSize="14"
+                                    Keyboard="Numeric"
+                                    Placeholder="输入星数 (-1000 到 1000)"
+                                    Text="{Binding StarCount}"
+                                    TextColor="#333333">
+                                    <Entry.Behaviors>
+                                        <behaviors:NumericValidationBehavior MaxValue="1000" MinValue="-1000" />
+                                    </Entry.Behaviors>
+                                </Entry>
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="14"
+                                    Text="颗"
+                                    TextColor="#666666"
+                                    VerticalOptions="Center" />
+                                <Stepper
+                                    Grid.Column="2"
+                                    Increment="1"
+                                    Maximum="100"
+                                    Minimum="-100"
+                                    Value="{Binding StarCount}" />
+                            </Grid>
+                        </VerticalStackLayout>
 
-            </VerticalStackLayout>
-        </ScrollView>
+                        <!--  拍照按钮  -->
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                <Button
+                                    Grid.Column="0"
+                                    BackgroundColor="#4ECDC4"
+                                    Command="{Binding TakePhotoCommand}"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    HeightRequest="44"
+                                    Text="📸 拍照"
+                                    TextColor="White" />
+                                <Button
+                                    Grid.Column="1"
+                                    BackgroundColor="#9C27B0"
+                                    Command="{Binding PickImageCommand}"
+                                    CornerRadius="8"
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    HeightRequest="44"
+                                    Text="🖼️ 相册"
+                                    TextColor="White" />
+                            </Grid>
 
-        <!-- 记录列表 -->
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding Records}"
-                        IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
-                        SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame Margin="12,6,12,6"
-                           CornerRadius="16"
-                           Padding="16"
-                           BackgroundColor="White"
-                           HasShadow="False">
-                        <Grid ColumnDefinitions="Auto, *, Auto">
-                            <!-- 星星图标背景 -->
-                            <Frame Grid.Column="0"
-                                   CornerRadius="28"
-                                   BackgroundColor="{Binding Type, Converter={StaticResource TypeColorConverter}}"
-                                   WidthRequest="56"
-                                   HeightRequest="56"
-                                   Padding="0"
-                                   HasShadow="False">
-                                <Label Text="⭐"
-                                       FontSize="28"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                            <!--  照片预览  -->
+                            <Frame
+                                Padding="10"
+                                BackgroundColor="#F5F5F5"
+                                CornerRadius="8"
+                                HeightRequest="150"
+                                IsVisible="{Binding ImagePreview, Converter={StaticResource IsNotNullConverter}}">
+                                <Grid>
+                                    <Image
+                                        Aspect="AspectFill"
+                                        HeightRequest="130"
+                                        HorizontalOptions="Fill"
+                                        Source="{Binding ImagePreview}" />
+                                    <Button
+                                        Margin="5"
+                                        BackgroundColor="#FF6B6B"
+                                        Command="{Binding ClearImageCommand}"
+                                        CornerRadius="15"
+                                        HeightRequest="30"
+                                        HorizontalOptions="End"
+                                        Text="✖"
+                                        TextColor="White"
+                                        VerticalOptions="Start"
+                                        WidthRequest="30" />
+                                </Grid>
                             </Frame>
+                        </VerticalStackLayout>
 
-                            <!-- 内容 -->
-                            <VerticalStackLayout Grid.Column="1" Margin="16,0">
-                                <Label Text="{Binding Reason}"
-                                       FontSize="16"
-                                       FontAttributes="Bold" />
-                                <Label Text="{Binding DisplayDate}"
-                                       FontSize="12"
-                                       TextColor="Gray" />
-                                <Label Text="{Binding Notes}"
-                                       FontSize="12"
-                                       TextColor="Gray"
-                                       IsVisible="{Binding Notes, Converter={StaticResource IsNotNullConverter}}" />
-                            </VerticalStackLayout>
+                        <!--  提交按钮  -->
+                        <Button
+                            Margin="0,10,0,0"
+                            BackgroundColor="#FF6B6B"
+                            Command="{Binding SaveRecordCommand}"
+                            CornerRadius="8"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HeightRequest="44"
+                            IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}"
+                            Text="✓ 提交记录"
+                            TextColor="White" />
 
-                            <!-- 星星数量 -->
-                            <Label Grid.Column="2"
-                                   Text="{Binding DisplayStar}"
-                                   FontSize="20"
-                                   FontAttributes="Bold"
-                                   TextColor="{Binding Type, Converter={StaticResource StarColorConverter}}"
-                                   VerticalOptions="Center" />
-                        </Grid>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                        <!--  加载指示器  -->
+                        <ActivityIndicator
+                            HeightRequest="20"
+                            IsRunning="{Binding IsLoading}"
+                            IsVisible="{Binding IsLoading}"
+                            Color="#FF6B6B" />
 
-        <!-- 加载中遮罩 -->
-        <Grid Grid.RowSpan="3"
-              IsVisible="{Binding IsLoading}"
-              BackgroundColor="#80FFFFFF">
-            <ActivityIndicator IsRunning="{Binding IsLoading}"
-                               Color="#512BD4"
-                               Scale="1.5" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
         </Grid>
 
-        <!-- 浮动添加按钮 -->
-        <Grid Grid.Row="2"
-              Padding="16,0,16,24"
-              IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
-            <!-- 这里可以使用 UraniumUI 的 FloatingActionButton 或者原生按钮 -->
-            <Button Text="+"
-                    BackgroundColor="#512BD4"
-                    TextColor="White"
-                    FontSize="24"
-                    WidthRequest="56"
-                    HeightRequest="56"
-                    CornerRadius="28"
-                    Command="{Binding AddRecordCommand}"
-                    HorizontalOptions="End"
-                    VerticalOptions="Center" />
-        </Grid>
+        <!--  ========== 右侧区域 ==========  -->
+        <Grid
+            Grid.Column="1"
+            Padding="10"
+            RowDefinitions="Auto, Auto, *"
+            RowSpacing="10">
 
+            <!--  右侧第一行：标题  -->
+            <Frame
+                Grid.Row="0"
+                Padding="12"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="20"
+                    HorizontalOptions="Center"
+                    Text="✨ 货币记录 ✨"
+                    TextColor="#FF6B6B" />
+            </Frame>
+
+            <!--  右侧第二行：筛选控件  -->
+            <Frame
+                Grid.Row="1"
+                Padding="12"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+
+                    <!--  类型筛选  -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="类型："
+                            TextColor="#666666"
+                            VerticalOptions="Center" />
+                        <Picker
+                            x:Name="TypeFilterPicker"
+                            FontSize="14"
+                            ItemsSource="{Binding FilterTypes}"
+                            SelectedIndexChanged="OnFilterChanged"
+                            SelectedItem="{Binding SelectedFilterType}"
+                            TextColor="#333333"
+                            WidthRequest="120" />
+                    </HorizontalStackLayout>
+
+                    <!--  时间筛选  -->
+                    <Grid
+                        ColumnDefinitions="Auto, *, Auto, *"
+                        ColumnSpacing="10"
+                        RowDefinitions="Auto, Auto"
+                        RowSpacing="10">
+
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            FontSize="14"
+                            Text="开始："
+                            TextColor="#666666"
+                            VerticalOptions="Center" />
+                        <DatePicker
+                            x:Name="StartDatePicker"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Date="{Binding StartDate}"
+                            DateSelected="OnFilterChanged" />
+
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            FontSize="14"
+                            Text="结束："
+                            TextColor="#666666"
+                            VerticalOptions="Center" />
+                        <DatePicker
+                            x:Name="EndDatePicker"
+                            Grid.Row="0"
+                            Grid.Column="3"
+                            Date="{Binding EndDate}"
+                            DateSelected="OnFilterChanged" />
+                    </Grid>
+
+                    <Button
+                        BackgroundColor="#4ECDC4"
+                        Command="{Binding FilterRecordsCommand}"
+                        CornerRadius="6"
+                        HeightRequest="40"
+                        Text="🔍 筛选"
+                        TextColor="White" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!--  右侧第三行：记录列表  -->
+            <Frame
+                Grid.Row="2"
+                Padding="0"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+
+                <Grid>
+                    <!--  下拉刷新和列表内容  -->
+                    <RefreshView Command="{Binding LoadDataCommand}" IsRefreshing="{Binding IsLoading}">
+                        <CollectionView
+                            ItemsSource="{Binding Records}"
+                            RemainingItemsThreshold="3"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                            SelectionMode="None">
+
+                            <!--  空状态视图  -->
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout
+                                    Padding="40"
+                                    HorizontalOptions="Center"
+                                    Spacing="10"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontSize="48"
+                                        HorizontalOptions="Center"
+                                        Text="📭"
+                                        TextColor="#CCCCCC" />
+                                    <Label
+                                        FontSize="16"
+                                        HorizontalOptions="Center"
+                                        Text="暂无记录"
+                                        TextColor="#999999" />
+                                    <Label
+                                        FontSize="12"
+                                        HorizontalOptions="Center"
+                                        Text="点击左侧表单添加记录"
+                                        TextColor="#CCCCCC" />
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+
+                            <!--  列表项模板  -->
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid
+                                        Padding="12,10"
+                                        ColumnDefinitions="Auto, *, Auto"
+                                        RowDefinitions="Auto, Auto">
+
+                                        <!--  类型图标  -->
+                                        <Label
+                                            Grid.RowSpan="2"
+                                            Grid.Column="0"
+                                            FontSize="28"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Type, Converter={StaticResource TypeIconConverter}}"
+                                            VerticalOptions="Center" />
+
+                                        <!--  原因  -->
+                                        <Label
+                                            Grid.Row="0"
+                                            Grid.Column="1"
+                                            FontAttributes="Bold"
+                                            FontSize="16"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding Reason}"
+                                            TextColor="#333333" />
+
+                                        <!--  备注（如果有）  -->
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            IsVisible="{Binding Notes, Converter={StaticResource IsNotNullConverter}}"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding Notes}"
+                                            TextColor="#999999" />
+
+                                        <!--  星数和时间  -->
+                                        <VerticalStackLayout
+                                            Grid.RowSpan="2"
+                                            Grid.Column="2"
+                                            HorizontalOptions="End"
+                                            Spacing="4">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="18"
+                                                HorizontalOptions="End"
+                                                Text="{Binding StarCount, StringFormat='{0}颗'}"
+                                                TextColor="{Binding Type, Converter={StaticResource StarColorConverter}}" />
+                                            <Label
+                                                FontSize="10"
+                                                HorizontalOptions="End"
+                                                Text="{Binding Date, StringFormat='{0:MM-dd HH:mm}'}"
+                                                TextColor="#CCCCCC" />
+                                        </VerticalStackLayout>
+
+                                        <!--  分割线  -->
+                                        <BoxView
+                                            Grid.Row="2"
+                                            Grid.ColumnSpan="3"
+                                            Margin="0,8,0,0"
+                                            BackgroundColor="#F0F0F0"
+                                            HeightRequest="1" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+
+                            <!--  底部加载更多指示器  -->
+                            <CollectionView.Footer>
+                                <Grid HeightRequest="60" IsVisible="{Binding IsLoadingMore}">
+                                    <ActivityIndicator
+                                        HorizontalOptions="Center"
+                                        IsRunning="{Binding IsLoadingMore}"
+                                        VerticalOptions="Center"
+                                        Color="#FF6B6B" />
+                                </Grid>
+                            </CollectionView.Footer>
+
+                        </CollectionView>
+                    </RefreshView>
+
+                    <!--  首次加载时显示的指示器（覆盖在列表上）  -->
+                    <Grid IsEnabled="False" IsVisible="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+                        <ActivityIndicator
+                            HorizontalOptions="Center"
+                            IsRunning="{Binding IsLoading}"
+                            VerticalOptions="Center"
+                            Color="#FF6B6B" />
+                    </Grid>
+                </Grid>
+            </Frame>
+        </Grid>
     </Grid>
 
 </ContentPage>

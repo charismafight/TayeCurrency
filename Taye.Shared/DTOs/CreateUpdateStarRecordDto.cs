@@ -21,7 +21,7 @@ public class CreateUpdateStarRecordDto
     public string Reason { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "类型不能为空")]
-    [RegularExpression("^(Gain|Spend)$", ErrorMessage = "类型只能是 Gain 或 Spend")]
+    [RegularExpression("^(Gain|Spend|Punish)$", ErrorMessage = "类型只能是 Gain 或 Spend 或 Punish")]
     public string Type { get; set; } = string.Empty;
 
     [MaxLength(500, ErrorMessage = "备注不能超过500字")]

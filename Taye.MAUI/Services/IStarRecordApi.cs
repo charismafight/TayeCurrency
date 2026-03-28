@@ -34,6 +34,16 @@ public interface IStarRecordApi
         [AliasAs("Notes")] string? notes,
         [AliasAs("ImageFile")] StreamPart? imageFile);
 
+    // 新增分页方法
+    [Get("/api/StarRecords/paged")]
+    Task<APIResponse<PagedResult<StarRecordDto>>> GetRecordsPaged(
+        [Query] DateTime? startDate = null,
+        [Query] DateTime? endDate = null,
+        [Query] string? type = null,
+        [Query] string? userId = null,
+        [Query] int page = 1,
+        [Query] int pageSize = 20);
+
     /// <summary>
     /// 更新记录
     /// </summary>

@@ -34,7 +34,7 @@ public class StarRecord
     public string Reason { get; set; } = string.Empty;
 
     /// <summary>
-    /// 类型：获得(Gain) 或 消费(Spend)
+    /// 类型：获得(Gain) 或 消费(Spend) 或 惩罚（Punish)
     /// </summary>
     [Required]
     [MaxLength(10)]
