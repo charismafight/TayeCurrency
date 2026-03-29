@@ -23,6 +23,11 @@ public class StarStatisticsDto
     public int CurrentBalance => TotalGain - TotalSpend;
 
     /// <summary>
+    /// 当前剩余可以玩游戏的市场（分钟）
+    /// </summary>
+    public int GameMinutes => CurrentBalance * 5;
+
+    /// <summary>
     /// 今日获得星星数
     /// </summary>
     public int TodayGain { get; set; }

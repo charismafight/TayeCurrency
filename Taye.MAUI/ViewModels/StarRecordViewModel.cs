@@ -1,9 +1,10 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Media;
+using Microsoft.Maui.Storage;
 using Taye.MAUI.Services;
 using Taye.Shared.DTOs;
-using Microsoft.Maui.Storage;
-using Microsoft.Maui.Media;
 
 namespace Taye.MAUI.ViewModels;
 
@@ -16,7 +17,7 @@ public partial class StarRecordViewModel : ObservableObject
     private int _totalCount = 0;
 
     [ObservableProperty]
-    private List<StarRecordDto> records = new();
+    private ObservableCollection<StarRecordDto> records = new();
 
     [ObservableProperty]
     private StarStatisticsDto? statistics;
@@ -67,10 +68,22 @@ public partial class StarRecordViewModel : ObservableObject
         "惩罚"
     };
 
+    [ObservableProperty]
+    private Dictionary<string, int> currentTemplates = new();
+
+    [ObservableProperty]
+    private List<string> quickReasons = new();
+
+    [ObservableProperty]
+    private Dictionary<string, int> reasonStarMap = new();
+
     public StarRecordViewModel(IApiService apiService)
     {
         _apiService = apiService;
         SelectedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        // 初始化时加载默认类型的原因列表
+        LoadReasonsByType(type);
     }
 
     [RelayCommand]
@@ -108,18 +121,24 @@ public partial class StarRecordViewModel : ObservableObject
         }
 
         // 调用分页 API
-        var result = await _apiService.GetRecordsPagedAsync(StartDate, EndDate, typeValue, _currentPage, PageSize);
+        var result = await _apiService.GetRecordsPagedAsync(StartDate, EndDate.AddDays(1), typeValue, _currentPage, PageSize);
 
-        if (_currentPage == 1)
+        if (result?.Items == null) return;
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
         {
-            Records = result.Items;
-        }
-        else
-        {
-            var newList = new List<StarRecordDto>(Records);
-            newList.AddRange(result.Items);
-            Records = newList;
-        }
+            if (_currentPage == 1)
+            {
+                // 第一页，清空重新加载
+                Records.Clear();
+            }
+
+            // 逐条添加，这样 ObservableCollection 会通知 UI 每一行的插入
+            foreach (var item in result.Items.OrderByDescending(p => p.Date))
+            {
+                Records.Add(item);
+            }
+        });
 
         _hasMoreData = result.HasNextPage;
         _totalCount = result.TotalCount;
@@ -169,13 +188,20 @@ public partial class StarRecordViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(Reason))
         {
-            await Shell.Current.DisplayAlert("提示", "请输入原因", "确定");
+            await Application.Current.MainPage.DisplayAlert("提示", "请输入原因", "确定");
             return;
         }
 
         if (StarCount < -1000 || StarCount > 1000)
         {
-            await Shell.Current.DisplayAlert("提示", "星数范围必须在 -100 到 +100 之间", "确定");
+            await Application.Current.MainPage.DisplayAlert("提示", "星数范围必须在 -1000 到 +1000 之间", "确定");
+            return;
+        }
+
+        // 添加照片校验
+        if (SelectedImage == null)
+        {
+            await Application.Current.MainPage.DisplayAlert("提示", "请上传照片", "确定");
             return;
         }
 
@@ -211,7 +237,7 @@ public partial class StarRecordViewModel : ObservableObject
 
             if (success)
             {
-                await Shell.Current.DisplayAlert("成功", "记录已保存", "确定");
+                await Application.Current.MainPage.DisplayAlert("成功", "记录已保存", "确定");
 
                 // 清空表单
                 StarCount = 0;
@@ -225,12 +251,12 @@ public partial class StarRecordViewModel : ObservableObject
             }
             else
             {
-                await Shell.Current.DisplayAlert("失败", "保存失败，请重试", "确定");
+                await Application.Current.MainPage.DisplayAlert("失败", "保存失败，请重试", "确定");
             }
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("错误", $"保存失败: {ex.Message}", "确定");
+            await Application.Current.MainPage.DisplayAlert("错误", $"保存失败: {ex.Message}", "确定");
         }
         finally
         {
@@ -241,7 +267,7 @@ public partial class StarRecordViewModel : ObservableObject
     [RelayCommand]
     public async Task DeleteRecord(StarRecordDto record)
     {
-        var confirm = await Shell.Current.DisplayAlert(
+        var confirm = await Application.Current.MainPage.DisplayAlert(
             "确认删除",
             $"确定要删除 {record.DisplayDate} 的 {record.DisplayStar} 吗？",
             "删除",
@@ -256,7 +282,7 @@ public partial class StarRecordViewModel : ObservableObject
                 if (success)
                 {
                     await LoadData();
-                    await Shell.Current.DisplayAlert("成功", "已删除", "确定");
+                    await Application.Current.MainPage.DisplayAlert("成功", "已删除", "确定");
                 }
             }
             finally
@@ -284,7 +310,7 @@ public partial class StarRecordViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("错误", $"选择图片失败: {ex.Message}", "确定");
+            await Application.Current.MainPage.DisplayAlert("错误", $"选择图片失败: {ex.Message}", "确定");
         }
     }
 
@@ -296,7 +322,7 @@ public partial class StarRecordViewModel : ObservableObject
             var status = await Permissions.RequestAsync<Permissions.Camera>();
             if (status != PermissionStatus.Granted)
             {
-                await Shell.Current.DisplayAlert("权限不足", "需要相机权限才能拍照", "确定");
+                await Application.Current.MainPage.DisplayAlert("权限不足", "需要相机权限才能拍照", "确定");
                 return;
             }
 
@@ -313,7 +339,7 @@ public partial class StarRecordViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("错误", $"拍照失败: {ex.Message}", "确定");
+            await Application.Current.MainPage.DisplayAlert("错误", $"拍照失败: {ex.Message}", "确定");
         }
     }
 
@@ -327,15 +353,69 @@ public partial class StarRecordViewModel : ObservableObject
     [RelayCommand]
     public async Task EditRecord(StarRecordDto record)
     {
-        await Shell.Current.GoToAsync("edit", new Dictionary<string, object>
-        {
-            ["record"] = record
-        });
     }
 
     [RelayCommand]
     public async Task AddRecord()
     {
-        await Shell.Current.GoToAsync("add");
+
+    }
+
+    partial void OnTypeChanged(string value)
+    {
+        // 当类型改变时，重新加载对应的模板
+        LoadReasonsByType(value);
+        StarCount = 0;
+    }
+
+    private async Task LoadReasonsByType(string type)
+    {
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"开始加载 {type} 类型的原因列表");
+
+            // 先清空，防止显示旧数据
+            QuickReasons = new List<string>();
+            ReasonStarMap = new Dictionary<string, int>();
+
+            var response = await _apiService.GetReasonTemplatesAsync(type);
+            if (response.Success && response.Data != null)
+            {
+                // 在主线程更新 UI
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    ReasonStarMap = response.Data;
+                    QuickReasons = ReasonStarMap.Keys.ToList();
+                    System.Diagnostics.Debug.WriteLine($"加载完成，共 {QuickReasons.Count} 个原因");
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"API 返回失败: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"加载原因列表失败: {ex.Message}");
+        }
+    }
+
+    // 当选择原因时，自动填充星数
+    partial void OnReasonChanged(string value)
+    {
+        if (!string.IsNullOrEmpty(value) && ReasonStarMap.ContainsKey(value))
+        {
+            StarCount = ReasonStarMap[value];
+        }
+    }
+
+    [RelayCommand]
+    public void SelectQuickReason(string reason)
+    {
+        if (!string.IsNullOrEmpty(reason) && CurrentTemplates.ContainsKey(reason))
+        {
+            Reason = reason;
+            StarCount = CurrentTemplates[reason];
+        }
     }
 }

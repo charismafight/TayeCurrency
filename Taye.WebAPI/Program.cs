@@ -41,6 +41,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
+builder.Services.AddSingleton<IReasonTemplateService, ReasonTemplateService>();
 
 var app = builder.Build();
 
@@ -62,7 +63,7 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated(); // 如果数据库不存在，创建数据库和表
+    dbContext.Database.Migrate();
 }
 
 app.Run();

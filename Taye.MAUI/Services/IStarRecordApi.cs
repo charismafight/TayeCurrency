@@ -75,4 +75,10 @@ public interface IStarRecordApi
     /// </summary>
     [Get("/api/StarRecords/statistics")]
     Task<APIResponse<StarStatisticsDto>> GetStatistics([Query] string? userId = null);
+
+    /// <summary>
+    /// 获取原因模板
+    /// </summary>
+    [Get("/api/StarRecords/templates")]
+    Task<APIResponse<Dictionary<string, int>>> GetReasonTemplates([Query] string? type = null);
 }

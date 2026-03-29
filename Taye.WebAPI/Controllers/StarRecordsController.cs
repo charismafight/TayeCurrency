@@ -15,12 +15,14 @@ public class StarRecordsController : ControllerBase
     private readonly AppDbContext _context;
     private readonly ILogger<StarRecordsController> _logger;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IReasonTemplateService _reasonTemplateService;
 
-    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService)
+    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService, IReasonTemplateService reasonTemplateService)
     {
         _context = context;
         _logger = logger;
         _fileUploadService = fileUploadService;
+        _reasonTemplateService = reasonTemplateService;
     }
 
     /// <summary>
@@ -222,7 +224,7 @@ public class StarRecordsController : ControllerBase
             // 创建实体
             var record = new StarRecord
             {
-                Date = createDto.Date,
+                Date = DateTime.Now,
                 StarCount = createDto.StarCount,
                 Reason = createDto.Reason,
                 Type = createDto.Type,
@@ -482,6 +484,99 @@ public class StarRecordsController : ControllerBase
         {
             _logger.LogError(ex, "获取统计数据失败");
             return StatusCode(500, APIResponse<StarStatisticsDto>.Fail("获取统计失败：" + ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// 获取原因模板（根据类型）
+    /// </summary>
+    [HttpGet("templates")]
+    [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
+    public ActionResult<APIResponse<Dictionary<string, int>>> GetTemplates([FromQuery] string? type = null)
+    {
+        try
+        {
+            Dictionary<string, int> templates;
+
+            if (string.IsNullOrEmpty(type))
+            {
+                // 返回所有模板的合并
+                templates = new Dictionary<string, int>();
+                foreach (var item in _reasonTemplateService.GetRewardTemplates())
+                    templates.Add(item.Key, item.Value);
+                foreach (var item in _reasonTemplateService.GetSpendTemplates())
+                    templates.Add(item.Key, item.Value);
+                foreach (var item in _reasonTemplateService.GetPunishTemplates())
+                    templates.Add(item.Key, item.Value);
+            }
+            else
+            {
+                templates = _reasonTemplateService.GetTemplatesByType(type);
+            }
+
+            return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取原因模板失败");
+            return StatusCode(500, APIResponse<Dictionary<string, int>>.Fail("获取模板失败：" + ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// 获取奖励模板
+    /// </summary>
+    [HttpGet("templates/reward")]
+    [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
+    public ActionResult<APIResponse<Dictionary<string, int>>> GetRewardTemplates()
+    {
+        try
+        {
+            var templates = _reasonTemplateService.GetRewardTemplates();
+            return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取奖励模板失败");
+            return StatusCode(500, APIResponse<Dictionary<string, int>>.Fail("获取模板失败：" + ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// 获取花费模板
+    /// </summary>
+    [HttpGet("templates/spend")]
+    [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
+    public ActionResult<APIResponse<Dictionary<string, int>>> GetSpendTemplates()
+    {
+        try
+        {
+            var templates = _reasonTemplateService.GetSpendTemplates();
+            return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取花费模板失败");
+            return StatusCode(500, APIResponse<Dictionary<string, int>>.Fail("获取模板失败：" + ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// 获取惩罚模板
+    /// </summary>
+    [HttpGet("templates/punish")]
+    [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
+    public ActionResult<APIResponse<Dictionary<string, int>>> GetPunishTemplates()
+    {
+        try
+        {
+            var templates = _reasonTemplateService.GetPunishTemplates();
+            return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取惩罚模板失败");
+            return StatusCode(500, APIResponse<Dictionary<string, int>>.Fail("获取模板失败：" + ex.Message));
         }
     }
 }

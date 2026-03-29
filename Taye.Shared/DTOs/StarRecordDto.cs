@@ -17,8 +17,8 @@ public class StarRecordDto
     public string? ImageFileName { get; set; }
 
     // 辅助属性
-    public string DisplayDate => Date.ToString("yyyy-MM-dd");
-    public string DisplayStar => Type == "Gain" ? $"+{StarCount}" : $"-{StarCount}";
+    public string DisplayDate => Date.ToString("yyyy-MM-dd HH:mm:ss");
+    public string DisplayStar => Type == "Gain" ? $"+{StarCount}" : $"{StarCount}";
     public string DisplayType => Type == "Gain" ? "获得" : "消费";
     public string? ImageUrl => !string.IsNullOrEmpty(ImagePath) ? $"/api/files/{ImagePath}" : null;
 }

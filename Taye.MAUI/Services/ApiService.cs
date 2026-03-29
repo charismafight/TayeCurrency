@@ -18,6 +18,11 @@ public interface IApiService
     Task<bool> UpdateRecordAsync(int id, DateTime date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null);
     Task<bool> DeleteRecordAsync(int id);
     Task<StarStatisticsDto?> GetStatisticsAsync();
+
+    /// <summary>
+    /// 获取原因模板
+    /// </summary>
+    Task<APIResponse<Dictionary<string, int>>> GetReasonTemplatesAsync(string? type = null);
 }
 
 public class ApiService : IApiService
@@ -214,6 +219,19 @@ public class ApiService : IApiService
         {
             _logger.LogError(ex, "获取统计异常");
             return null;
+        }
+    }
+
+    public async Task<APIResponse<Dictionary<string, int>>> GetReasonTemplatesAsync(string? type = null)
+    {
+        try
+        {
+            return await _api.GetReasonTemplates(type);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取原因模板异常");
+            return APIResponse<Dictionary<string, int>>.Fail("获取模板失败：" + ex.Message);
         }
     }
 }
