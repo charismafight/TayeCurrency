@@ -298,7 +298,7 @@
         <Grid
             Grid.Column="1"
             Padding="10"
-            RowDefinitions="Auto, Auto, *"
+            RowDefinitions="Auto, Auto, *, Auto"
             RowSpacing="10">
 
             <!--  右侧第一行：标题  -->
@@ -406,7 +406,8 @@
                         ItemsSource="{Binding Records}"
                         RemainingItemsThreshold="2"
                         RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-                        SelectionMode="None">
+                        SelectedItem="{Binding SelectedRecord}"
+                        SelectionMode="Single">
 
                         <CollectionView.EmptyView>
                             <VerticalStackLayout
@@ -527,6 +528,53 @@
                         </CollectionView.Footer>
                     </CollectionView>
                 </RefreshView>
+            </Frame>
+
+            <!--  右侧第四行：图片预览区域  -->
+            <Frame
+                Grid.Row="3"
+                Padding="12"
+                BackgroundColor="#FFFFFF"
+                CornerRadius="8"
+                HasShadow="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="📷 记录凭证"
+                        TextColor="#666666" />
+
+                    <!--  有图片时显示  -->
+                    <Border
+                        BackgroundColor="#F5F5F5"
+                        IsVisible="{Binding SelectedRecordImage, Converter={StaticResource IsNotNullConverter}}"
+                        Stroke="#E0E0E0"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1">
+                        <Grid>
+                            <Image
+                                Aspect="AspectFill"
+                                HeightRequest="150"
+                                HorizontalOptions="Center"
+                                Source="{Binding SelectedRecordImage}"
+                                WidthRequest="150" />
+
+                            <!--  放大按钮  -->
+                            <Button
+                                Margin="10"
+                                BackgroundColor="#CC000000"
+                                Command="{Binding ViewImageCommand}"
+                                CornerRadius="15"
+                                FontSize="12"
+                                HeightRequest="30"
+                                HorizontalOptions="End"
+                                Text="🔍 放大"
+                                TextColor="White"
+                                VerticalOptions="Start"
+                                WidthRequest="60" />
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
             </Frame>
         </Grid>
     </Grid>

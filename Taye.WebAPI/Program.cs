@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using Taye.WebAPI.Data;
 using Taye.WebAPI.Services;
@@ -41,7 +42,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
-builder.Services.AddSingleton<IReasonTemplateService, ReasonTemplateService>();
+builder.Services.AddScoped<IReasonTemplateService, ReasonTemplateService>();
 
 var app = builder.Build();
 
@@ -53,6 +54,17 @@ if (app.Environment.IsDevelopment())
 
 app.MapScalarApiReference();
 
+// 配置静态文件服务
+app.UseStaticFiles(); // 这会让 wwwroot 目录下的文件可访问
+
+// 如果需要自定义路径
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+    RequestPath = "/wwwroot",
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -63,7 +75,7 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    dbContext.Database.EnsureCreated();
 }
 
 app.Run();

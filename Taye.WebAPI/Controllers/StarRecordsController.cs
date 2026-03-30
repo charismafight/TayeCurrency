@@ -4,6 +4,7 @@ using Taye.Shared.Entities;
 using Taye.Shared.DTOs;
 using Taye.WebAPI.Data;
 using Taye.WebAPI.Services;
+using System.Threading.Tasks;
 
 namespace Taye.WebAPI.Controllers;
 
@@ -128,7 +129,9 @@ public class StarRecordsController : ControllerBase
                     StarCount = r.StarCount,
                     Reason = r.Reason,
                     Type = r.Type,
-                    Notes = r.Notes
+                    Notes = r.Notes,
+                    ImagePath = r.ImagePath,
+                    ImageFileName = r.ImageFileName,
                 })
                 .ToListAsync();
 
@@ -428,34 +431,58 @@ public class StarRecordsController : ControllerBase
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
 
-            // 统计数据
-            var totalGain = await query.Where(r => r.Type == "Gain").SumAsync(r => r.StarCount);
-            var totalSpend = await query.Where(r => r.Type == "Spend").SumAsync(r => r.StarCount);
-
-            var todayGain = await query.Where(r => r.Date == today && r.Type == "Gain")
-                .SumAsync(r => r.StarCount);
-            var todaySpend = await query.Where(r => r.Date == today && r.Type == "Spend")
+            // 总获得（正数星星）
+            var totalGain = await query
+                .Where(r => r.StarCount > 0)
                 .SumAsync(r => r.StarCount);
 
-            var weekGain = await query.Where(r => r.Date >= startOfWeek && r.Type == "Gain")
-                .SumAsync(r => r.StarCount);
-            var weekSpend = await query.Where(r => r.Date >= startOfWeek && r.Type == "Spend")
+            // 总消费（负数星星的绝对值）
+            var totalSpend = await query
+                .Where(r => r.StarCount < 0)
+                .SumAsync(r => -r.StarCount);
+
+            // 今日获得
+            var todayGain = await query
+                .Where(r => r.Date == today && r.StarCount > 0)
                 .SumAsync(r => r.StarCount);
 
-            var monthGain = await query.Where(r => r.Date >= startOfMonth && r.Type == "Gain")
+            // 今日消费
+            var todaySpend = await query
+                .Where(r => r.Date == today && r.StarCount < 0)
+                .SumAsync(r => -r.StarCount);
+
+            // 本周获得
+            var weekGain = await query
+                .Where(r => r.Date >= startOfWeek && r.StarCount > 0)
                 .SumAsync(r => r.StarCount);
-            var monthSpend = await query.Where(r => r.Date >= startOfMonth && r.Type == "Spend")
+
+            // 本周消费
+            var weekSpend = await query
+                .Where(r => r.Date >= startOfWeek && r.StarCount < 0)
+                .SumAsync(r => -r.StarCount);
+
+            // 本月获得
+            var monthGain = await query
+                .Where(r => r.Date >= startOfMonth && r.StarCount > 0)
                 .SumAsync(r => r.StarCount);
+
+            // 本月消费
+            var monthSpend = await query
+                .Where(r => r.Date >= startOfMonth && r.StarCount < 0)
+                .SumAsync(r => -r.StarCount);
 
             // 最近7天数据
             var last7Days = new List<DailyStarDto>();
             for (int i = 6; i >= 0; i--)
             {
                 var day = today.AddDays(-i);
-                var dayGain = await query.Where(r => r.Date == day && r.Type == "Gain")
+                var dayGain = await query
+                    .Where(r => r.Date == day && r.StarCount > 0)
                     .SumAsync(r => r.StarCount);
-                var daySpend = await query.Where(r => r.Date == day && r.Type == "Spend")
-                    .SumAsync(r => r.StarCount);
+
+                var daySpend = await query
+                    .Where(r => r.Date == day && r.StarCount < 0)
+                    .SumAsync(r => -r.StarCount);
 
                 last7Days.Add(new DailyStarDto
                 {
@@ -488,11 +515,11 @@ public class StarRecordsController : ControllerBase
     }
 
     /// <summary>
-    /// 获取原因模板（根据类型）
+    /// 获取原因模板
     /// </summary>
     [HttpGet("templates")]
     [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
-    public ActionResult<APIResponse<Dictionary<string, int>>> GetTemplates([FromQuery] string? type = null)
+    public async Task<ActionResult<APIResponse<Dictionary<string, int>>>> GetTemplates([FromQuery] string? type = null)
     {
         try
         {
@@ -502,16 +529,16 @@ public class StarRecordsController : ControllerBase
             {
                 // 返回所有模板的合并
                 templates = new Dictionary<string, int>();
-                foreach (var item in _reasonTemplateService.GetRewardTemplates())
+                foreach (var item in await _reasonTemplateService.GetRewardTemplatesAsync())
                     templates.Add(item.Key, item.Value);
-                foreach (var item in _reasonTemplateService.GetSpendTemplates())
+                foreach (var item in await _reasonTemplateService.GetSpendTemplatesAsync())
                     templates.Add(item.Key, item.Value);
-                foreach (var item in _reasonTemplateService.GetPunishTemplates())
+                foreach (var item in await _reasonTemplateService.GetPunishTemplatesAsync())
                     templates.Add(item.Key, item.Value);
             }
             else
             {
-                templates = _reasonTemplateService.GetTemplatesByType(type);
+                templates = await _reasonTemplateService.GetTemplatesByTypeAsync(type);
             }
 
             return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
@@ -528,11 +555,11 @@ public class StarRecordsController : ControllerBase
     /// </summary>
     [HttpGet("templates/reward")]
     [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
-    public ActionResult<APIResponse<Dictionary<string, int>>> GetRewardTemplates()
+    public async Task<ActionResult<APIResponse<Dictionary<string, int>>>> GetRewardTemplates()
     {
         try
         {
-            var templates = _reasonTemplateService.GetRewardTemplates();
+            var templates = await _reasonTemplateService.GetRewardTemplatesAsync();
             return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
         }
         catch (Exception ex)
@@ -547,11 +574,11 @@ public class StarRecordsController : ControllerBase
     /// </summary>
     [HttpGet("templates/spend")]
     [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
-    public ActionResult<APIResponse<Dictionary<string, int>>> GetSpendTemplates()
+    public async Task<ActionResult<APIResponse<Dictionary<string, int>>>> GetSpendTemplates()
     {
         try
         {
-            var templates = _reasonTemplateService.GetSpendTemplates();
+            var templates = await _reasonTemplateService.GetSpendTemplatesAsync();
             return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
         }
         catch (Exception ex)
@@ -566,11 +593,11 @@ public class StarRecordsController : ControllerBase
     /// </summary>
     [HttpGet("templates/punish")]
     [ProducesResponseType(typeof(APIResponse<Dictionary<string, int>>), StatusCodes.Status200OK)]
-    public ActionResult<APIResponse<Dictionary<string, int>>> GetPunishTemplates()
+    public async Task<ActionResult<APIResponse<Dictionary<string, int>>>> GetPunishTemplates()
     {
         try
         {
-            var templates = _reasonTemplateService.GetPunishTemplates();
+            var templates = await _reasonTemplateService.GetPunishTemplatesAsync();
             return Ok(APIResponse<Dictionary<string, int>>.Ok(templates));
         }
         catch (Exception ex)

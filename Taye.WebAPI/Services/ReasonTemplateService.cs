@@ -1,69 +1,144 @@
+using Microsoft.EntityFrameworkCore;
+using Taye.Shared.Entities;
+using Taye.WebAPI.Data;
+
 namespace Taye.WebAPI.Services;
 
 public interface IReasonTemplateService
 {
-    Dictionary<string, int> GetRewardTemplates();   // 奖励类
-    Dictionary<string, int> GetSpendTemplates();    // 花费类
-    Dictionary<string, int> GetPunishTemplates();   // 惩罚类
-    Dictionary<string, int> GetTemplatesByType(string type);
+    Task<Dictionary<string, int>> GetRewardTemplatesAsync();   // 奖励类
+    Task<Dictionary<string, int>> GetSpendTemplatesAsync();    // 花费类
+    Task<Dictionary<string, int>> GetPunishTemplatesAsync();   // 惩罚类
+    Task<Dictionary<string, int>> GetTemplatesByTypeAsync(string type);
+    Task<List<ReasonTemplate>> GetAllTemplatesAsync();
+    Task<ReasonTemplate?> GetTemplateByIdAsync(int id);
+    Task<bool> AddTemplateAsync(ReasonTemplate template);
+    Task<bool> UpdateTemplateAsync(ReasonTemplate template);
+    Task<bool> DeleteTemplateAsync(int id);
 }
 
 public class ReasonTemplateService : IReasonTemplateService
 {
-    // 奖励类（正值）
-    private readonly Dictionary<string, int> _rewardTemplates = new()
-    {
-        { "完成每日任务", 10 },
-        { "老师表扬学校优秀表现", 6 },
-        { "帮助他人", 15 },
-        { "考试获得100分（满分100）", 12 },
-        { "考试获得99、98分（满分100）", 6 },
-        { "晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床", 1 },
-    };
+    private readonly AppDbContext _context;
+    private readonly ILogger<ReasonTemplateService> _logger;
 
-    // 花费类（负值）
-    private readonly Dictionary<string, int> _spendTemplates = new()
+    public ReasonTemplateService(AppDbContext context, ILogger<ReasonTemplateService> logger)
     {
-        { "购买零食（每1块钱）", -1 },
-        { "购买玩具（每1块钱）", -1 },
-        { "玩游戏（每5分钟）", -1 },
-    };
-
-    // 惩罚类（负值，较重）
-    private readonly Dictionary<string, int> _punishTemplates = new()
-    {
-        { "晚上22:00前没有收好书包，洗漱完毕，换好睡衣，上自己的床", -1 },
-        { "尿尿忘记冲厕所", -1 },
-        { "起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）", -1 },
-        { "忘记带上课需要的文具、工具、书等等", -3 },
-        { "作业未完成或者各类老师评价得A-以下（不包括A-）", -2 },
-        { "说谎", -30 },
-        { "打架", -50 },
-    };
-
-    public Dictionary<string, int> GetRewardTemplates()
-    {
-        return _rewardTemplates;
+        _context = context;
+        _logger = logger;
     }
 
-    public Dictionary<string, int> GetSpendTemplates()
+    public async Task<Dictionary<string, int>> GetRewardTemplatesAsync()
     {
-        return _spendTemplates;
+        return await _context.ReasonTemplates
+            .Where(t => t.Type == "Reward" && t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .ToDictionaryAsync(t => t.Reason, t => t.StarCount);
     }
 
-    public Dictionary<string, int> GetPunishTemplates()
+    public async Task<Dictionary<string, int>> GetSpendTemplatesAsync()
     {
-        return _punishTemplates;
+        return await _context.ReasonTemplates
+            .Where(t => t.Type == "Spend" && t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .ToDictionaryAsync(t => t.Reason, t => t.StarCount);
     }
 
-    public Dictionary<string, int> GetTemplatesByType(string type)
+    public async Task<Dictionary<string, int>> GetPunishTemplatesAsync()
     {
-        return type switch
+        return await _context.ReasonTemplates
+            .Where(t => t.Type == "Punish" && t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .ToDictionaryAsync(t => t.Reason, t => t.StarCount);
+    }
+
+    public async Task<Dictionary<string, int>> GetTemplatesByTypeAsync(string type)
+    {
+        var typeEn = type switch
         {
-            "奖励" => _rewardTemplates,
-            "花费" => _spendTemplates,
-            "惩罚" => _punishTemplates,
-            _ => new Dictionary<string, int>()
+            "奖励" => "Reward",
+            "花费" => "Spend",
+            "惩罚" => "Punish",
+            _ => type
         };
+
+        return await _context.ReasonTemplates
+            .Where(t => t.Type == typeEn && t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .ToDictionaryAsync(t => t.Reason, t => t.StarCount);
+    }
+
+    public async Task<List<ReasonTemplate>> GetAllTemplatesAsync()
+    {
+        return await _context.ReasonTemplates
+            .Where(t => t.IsActive)
+            .OrderBy(t => t.SortOrder)
+            .ToListAsync();
+    }
+
+    public async Task<ReasonTemplate?> GetTemplateByIdAsync(int id)
+    {
+        return await _context.ReasonTemplates.FindAsync(id);
+    }
+
+    public async Task<bool> AddTemplateAsync(ReasonTemplate template)
+    {
+        try
+        {
+            template.CreatedAt = DateTime.UtcNow;
+            _context.ReasonTemplates.Add(template);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "添加模板失败");
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateTemplateAsync(ReasonTemplate template)
+    {
+        try
+        {
+            var existing = await _context.ReasonTemplates.FindAsync(template.Id);
+            if (existing == null) return false;
+
+            existing.Reason = template.Reason;
+            existing.StarCount = template.StarCount;
+            existing.Type = template.Type;
+            existing.Notes = template.Notes;
+            existing.SortOrder = template.SortOrder;
+            existing.IsActive = template.IsActive;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "更新模板失败");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteTemplateAsync(int id)
+    {
+        try
+        {
+            var template = await _context.ReasonTemplates.FindAsync(id);
+            if (template == null) return false;
+
+            // 软删除
+            template.IsActive = false;
+            template.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "删除模板失败");
+            return false;
+        }
     }
 }

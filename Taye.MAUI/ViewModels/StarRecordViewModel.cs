@@ -77,6 +77,12 @@ public partial class StarRecordViewModel : ObservableObject
     [ObservableProperty]
     private Dictionary<string, int> reasonStarMap = new();
 
+    [ObservableProperty]
+    private StarRecordDto? selectedRecord;
+
+    [ObservableProperty]
+    private string? selectedRecordImage;
+
     public StarRecordViewModel(IApiService apiService)
     {
         _apiService = apiService;
@@ -416,6 +422,66 @@ public partial class StarRecordViewModel : ObservableObject
         {
             Reason = reason;
             StarCount = CurrentTemplates[reason];
+        }
+    }
+
+    partial void OnSelectedRecordChanged(StarRecordDto? value)
+    {
+        if (value != null && !string.IsNullOrEmpty(value.ImagePath))
+        {
+            System.Diagnostics.Debug.WriteLine($"选中记录: {value?.Id}, 原因: {value?.Reason}, ImagePath: {value?.ImagePath}");
+            // 构建图片完整URL
+            SelectedRecordImage = $"{App.ApiBaseUrl}/{value.ImagePath}";
+        }
+        else
+        {
+            SelectedRecordImage = null;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ViewImage()
+    {
+        if (!string.IsNullOrEmpty(SelectedRecordImage))
+        {
+            // 创建图片预览页面
+            var imagePage = new ContentPage
+            {
+                Title = "图片预览",
+                Content = new Grid
+                {
+                    Children =
+                {
+                    new Image
+                    {
+                        Source = SelectedRecordImage,
+                        Aspect = Aspect.AspectFit,
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Center
+                    }
+                }
+                }
+            };
+
+            // 添加关闭按钮
+            var closeButton = new Button
+            {
+                Text = "关闭",
+                HorizontalOptions = LayoutOptions.End,
+                VerticalOptions = LayoutOptions.Start,
+                Margin = new Thickness(10),
+                BackgroundColor = Colors.Black,
+                TextColor = Colors.White,
+                CornerRadius = 20,
+                WidthRequest = 60,
+                HeightRequest = 40
+            };
+            closeButton.Clicked += async (s, e) => await Application.Current.MainPage.Navigation.PopModalAsync();
+
+            (imagePage.Content as Grid).Children.Add(closeButton);
+
+            // 使用模态窗口显示
+            await Application.Current.MainPage.Navigation.PushModalAsync(imagePage);
         }
     }
 }

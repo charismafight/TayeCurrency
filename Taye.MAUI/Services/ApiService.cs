@@ -28,21 +28,19 @@ public interface IApiService
 public class ApiService : IApiService
 {
     private readonly IStarRecordApi _api;
-    private readonly string _baseUrl;
     private readonly ILogger<ApiService> _logger;
     private readonly string? _userId; // 如果需要用户ID
 
     public ApiService(IConfiguration config, ILogger<ApiService> logger)
     {
         _logger = logger;
-        _baseUrl = config["ApiBaseUrl"] ?? "http://localhost:5257";
 
         // 如果有用户认证，可以从配置或缓存中获取
         _userId = config["UserId"]; // 或者从 SecureStorage 获取
 
         var httpClient = new HttpClient
         {
-            BaseAddress = new Uri(_baseUrl),
+            BaseAddress = new Uri(App.ApiBaseUrl),
             Timeout = TimeSpan.FromSeconds(30)
         };
 
