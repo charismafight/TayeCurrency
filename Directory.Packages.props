@@ -1,41 +1,42 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    </PropertyGroup>
-    <ItemGroup Label="Package Dependencies">
-        <!-- MAUI 核心包 - 使用 9.0.82 版本 -->
-        <PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageVersion>
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageVersion>
-        <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.100" />
-        <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
-        <!-- Lottie 动画 - 使用稳定版 -->
-        <PackageVersion Include="SkiaSharp.Extended.UI.Maui" Version="3.0.0" />
-        <!-- MVVM 和 DI -->
-        <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.1" />
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-        <!-- HTTP 客户端 -->
-        <PackageVersion Include="Refit" Version="10.1.6" />
-        <PackageVersion Include="Refit.HttpClientFactory" Version="10.1.6" />
-        <!-- JSON -->
-        <PackageVersion Include="System.Text.Json" Version="9.0.8" />
-        <!-- WebAPI 相关（如果需要） -->
-        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0-rc.2.24474.3" />
-        <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
-        <PackageVersion Include="Scalar.AspNetCore" Version="2.13.13" />
-        <PackageVersion Include="StyleCop.Analyzers" Version="1.1.118" />
-        <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
-
-        <!-- MAUI -->
-        <PackageVersion Include="UraniumUI" Version="2.15.0" />
-        <PackageVersion Include="UraniumUI.Material" Version="2.15.0" />
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Label="Package Dependencies">
+    <!-- MAUI 核心包 - 使用 9.0.82 版本 -->
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.100" />
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+    <!-- Lottie 动画 - 使用稳定版 -->
+    <PackageVersion Include="SkiaSharp.Extended.UI.Maui" Version="3.0.0" />
+    <!-- MVVM 和 DI -->
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+    <!-- HTTP 客户端 -->
+    <PackageVersion Include="Refit" Version="10.1.6" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="10.1.6" />
+    <PackageVersion Include="SqlSugarCore" Version="5.1.4.214" />
+    <!-- JSON -->
+    <PackageVersion Include="System.Text.Json" Version="9.0.8" />
+    <!-- WebAPI 相关（如果需要） -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0-rc.2.24474.3" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.10" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.13.13" />
+    <PackageVersion Include="StyleCop.Analyzers" Version="1.1.118" />
+    <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <!-- MAUI -->
+    <PackageVersion Include="UraniumUI" Version="2.15.0" />
+    <PackageVersion Include="UraniumUI.Material" Version="2.15.0" />
+  </ItemGroup>
 </Project>

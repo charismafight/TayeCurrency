@@ -4,7 +4,7 @@ public partial class App : Application
 {
     private readonly IServiceProvider _services;
 
-    public const string ApiBaseUrl = "http://localhost:5257";
+    public const string ApiBaseUrl = "http://kind-knowledge.top:40000";
 
 
     public App(IServiceProvider services)

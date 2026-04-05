@@ -26,11 +26,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddOpenApi();
 
-// 注册数据库上下文（使用 SQLite）
+// 注册数据库上下文
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlite(connectionString);
+
+    // 改为 PostgreSQL
+    options.UseNpgsql(connectionString);
 
     // 开发环境显示 SQL 语句
     if (builder.Environment.IsDevelopment())
@@ -39,6 +41,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.EnableDetailedErrors();
     }
 });
+
+// 添加这个配置：全局设置 DateTime 为 UTC
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 

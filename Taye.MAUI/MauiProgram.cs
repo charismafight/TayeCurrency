@@ -28,12 +28,12 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        // 配置 API 地址
-        var apiBaseUrl = DeviceInfo.Platform == DevicePlatform.Android
-            ? "http://10.0.2.2:5000"
-            : "https://localhost:5001";
+        //// 配置 API 地址
+        //var apiBaseUrl = DeviceInfo.Platform == DevicePlatform.Android
+        //    ? "http://10.0.2.2:5000"
+        //    : "https://localhost:5001";
 
-        builder.Services.AddSingleton(new ApiConfig { BaseUrl = apiBaseUrl });
+        //builder.Services.AddSingleton(new ApiConfig { BaseUrl = apiBaseUrl });
 
         // 注册 API 服务
         builder.Services.AddSingleton<IApiService, ApiService>();

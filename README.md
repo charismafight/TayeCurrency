@@ -42,3 +42,7 @@ builder.Services.AddCors(options =>
 app.UseCors();
 
 ```
+
+## Depolyment
+
+1. 

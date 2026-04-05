@@ -72,7 +72,7 @@ public partial class StarRecordViewModel : ObservableObject
     private Dictionary<string, int> currentTemplates = new();
 
     [ObservableProperty]
-    private List<string> quickReasons = new();
+    private ObservableCollection<string> quickReasons = new();
 
     [ObservableProperty]
     private Dictionary<string, int> reasonStarMap = new();
@@ -88,8 +88,10 @@ public partial class StarRecordViewModel : ObservableObject
         _apiService = apiService;
         SelectedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-        // 初始化时加载默认类型的原因列表
-        LoadReasonsByType(type);
+        // 先设置 Type，然后手动调用加载
+        Type = "奖励";
+        // 直接调用异步方法（不使用 await，避免阻塞）
+        Task.Run(async () => await LoadReasonsByType(Type));
     }
 
     [RelayCommand]
@@ -380,18 +382,24 @@ public partial class StarRecordViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"开始加载 {type} 类型的原因列表");
 
-            // 先清空，防止显示旧数据
-            QuickReasons = new List<string>();
-            ReasonStarMap = new Dictionary<string, int>();
+            // 先清空
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                QuickReasons.Clear();
+                ReasonStarMap.Clear();
+            });
 
             var response = await _apiService.GetReasonTemplatesAsync(type);
             if (response.Success && response.Data != null)
             {
-                // 在主线程更新 UI
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     ReasonStarMap = response.Data;
-                    QuickReasons = ReasonStarMap.Keys.ToList();
+                    // 逐个添加，确保 ObservableCollection 触发 CollectionChanged 事件
+                    foreach (var key in ReasonStarMap.Keys)
+                    {
+                        QuickReasons.Add(key);
+                    }
                     System.Diagnostics.Debug.WriteLine($"加载完成，共 {QuickReasons.Count} 个原因");
                 });
             }

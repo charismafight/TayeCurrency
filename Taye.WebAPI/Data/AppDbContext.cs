@@ -88,17 +88,18 @@ public class AppDbContext : DbContext
             new ReasonTemplate { Id = -9, Reason = "晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床", StarCount = 1, Type = "Reward", SortOrder = 9, IsActive = true, CreatedAt = fixedDate },
 
             // 花费类
-            new ReasonTemplate { Id = -10, Reason = "购买零食（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 10, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -11, Reason = "购买玩具（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 11, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -12, Reason = "玩游戏（每5分钟）", StarCount = -1, Type = "Spend", SortOrder = 12, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -100, Reason = "购买零食（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 10, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -101, Reason = "购买玩具（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 11, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -102, Reason = "玩游戏（每5分钟）", StarCount = -1, Type = "Spend", SortOrder = 12, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -103, Reason = "雇佣爸爸读书（麦克狐1章，约10页）", StarCount = -1, Type = "Spend", SortOrder = 13, IsActive = true, CreatedAt = fixedDate },
 
             // 惩罚类
-            new ReasonTemplate { Id = -13, Reason = "晚上22:00前没有收好书包，洗漱完毕，换好睡衣，上自己的床", StarCount = -1, Type = "Punish", SortOrder = 13, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -14, Reason = "尿尿忘记冲厕所", StarCount = -1, Type = "Punish", SortOrder = 14, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -15, Reason = "起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）", StarCount = -1, Type = "Punish", SortOrder = 15, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -16, Reason = "忘记带上课需要的文具、工具、书等等", StarCount = -3, Type = "Punish", SortOrder = 16, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -17, Reason = "作业未完成或者各类老师评价得A-以下（不包括A-）", StarCount = -2, Type = "Punish", SortOrder = 17, IsActive = true, CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -18, Reason = "老师反馈在学校违规违纪行为", StarCount = -12, Type = "Punish", SortOrder = 18, IsActive = true, CreatedAt = fixedDate }
+            new ReasonTemplate { Id = -201, Reason = "晚上22:00前没有收好书包，洗漱完毕，换好睡衣，上自己的床", StarCount = -1, Type = "Punish", SortOrder = 13, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -202, Reason = "尿尿忘记冲厕所", StarCount = -1, Type = "Punish", SortOrder = 14, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -203, Reason = "起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）", StarCount = -1, Type = "Punish", SortOrder = 15, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -204, Reason = "忘记带上课需要的文具、工具、书等等", StarCount = -3, Type = "Punish", SortOrder = 16, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -205, Reason = "作业未完成或者各类老师评价得A-以下（不包括A-）", StarCount = -2, Type = "Punish", SortOrder = 17, IsActive = true, CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -206, Reason = "老师反馈在学校违规违纪行为", StarCount = -12, Type = "Punish", SortOrder = 18, IsActive = true, CreatedAt = fixedDate }
         );
     }
 }
