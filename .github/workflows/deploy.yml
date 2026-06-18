@@ -42,7 +42,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DEPLOY_PORT }} # ✅ 端口 9023 会正确传递
+          port: ${{ secrets.DEPLOY_PORT }}
           source: "taye-web/dist.tar.gz"
           target: "/tmp/taye-deploy/"
           rm: false
@@ -54,7 +54,7 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.DEPLOY_PORT }} # ✅ 端口 9023 会正确传递
+          port: ${{ secrets.DEPLOY_PORT }}
           script: |
             cd /tmp/taye-deploy/taye-web
             tar -xzf dist.tar.gz
