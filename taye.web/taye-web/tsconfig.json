@@ -1,0 +1,17 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    // 👇 官方推荐方式：使用 moduleSuffixes 替代 baseUrl
+    "moduleSuffixes": [".ts", ".vue", ""],
+    // 👇 保留 paths 用于路径别名（Vite 会处理实际映射）
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

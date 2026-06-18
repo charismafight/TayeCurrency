@@ -26,7 +26,6 @@
     "omnisharp.enableMsBuildLoadProjectsOnDemand": true,
     "omnisharp.enableEditorConfigSupport": true,
     "omnisharp.enableRoslynAnalyzers": true,
-    "omnisharp.enableImportCompletion": true,
     "omnisharp.projectLoadTimeout": 120,
 
     // 文件关联
@@ -39,7 +38,7 @@
     // 编辑器设置
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll": true,
+      "source.fixAll": "explicit"
     },
 
     // 排除文件
@@ -54,6 +53,7 @@
       "**/bin": true,
       "**/obj": true,
     },
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
   },
   "extensions": {
     "recommendations": ["ms-dotnettools.csharp", "ms-dotnettools.csdevkit", "ms-dotnettools.vscode-dotnet-runtime", "muhammad-sammy.csharp-helper"],
