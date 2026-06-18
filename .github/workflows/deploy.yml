@@ -18,21 +18,21 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: "taye-web/package-lock.json" # ✅ 简化
+          cache-dependency-path: "taye-web/package-lock.json"
 
       - name: Install dependencies
         run: |
-          cd taye-web          # ✅ 简化
+          cd taye-web
           npm install
 
       - name: Build project
         run: |
-          cd taye-web          # ✅ 简化
+          cd taye-web
           npm run build
 
       - name: Package dist
         run: |
-          cd taye-web/dist     # ✅ 简化
+          cd taye-web/dist
           tar -czf ../dist.tar.gz .
 
       - name: Deploy to server
@@ -41,7 +41,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
           REMOTE_USER: ${{ secrets.DEPLOY_USER }}
-          SOURCE: "taye-web/dist.tar.gz" # ✅ 简化
+          PORT: ${{ secrets.DEPLOY_PORT }}
+          SOURCE: "taye-web/dist.tar.gz"
           TARGET: "/tmp/taye-deploy/"
           ARGS: "-avz --delete"
 
@@ -51,9 +52,11 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
           script: |
             cd /tmp/taye-deploy
             tar -xzf dist.tar.gz
-            sudo cp -r /tmp/taye-deploy/* /var/www/Taye.WebAPI/wwwroot/
+            sudo cp -r /tmp/taye-deploy/* /var/www/taye/wwwroot/
             sudo rm -rf /tmp/taye-deploy
+            sudo systemctl restart taye.service
             echo "✅ 部署完成！"
