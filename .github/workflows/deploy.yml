@@ -1,0 +1,59 @@
+name: Deploy Taye.Web to API wwwroot
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "taye-web/package-lock.json" # ✅ 简化
+
+      - name: Install dependencies
+        run: |
+          cd taye-web          # ✅ 简化
+          npm install
+
+      - name: Build project
+        run: |
+          cd taye-web          # ✅ 简化
+          npm run build
+
+      - name: Package dist
+        run: |
+          cd taye-web/dist     # ✅ 简化
+          tar -czf ../dist.tar.gz .
+
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@v4
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.DEPLOY_HOST }}
+          REMOTE_USER: ${{ secrets.DEPLOY_USER }}
+          SOURCE: "taye-web/dist.tar.gz" # ✅ 简化
+          TARGET: "/tmp/taye-deploy/"
+          ARGS: "-avz --delete"
+
+      - name: Extract and copy to wwwroot
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /tmp/taye-deploy
+            tar -xzf dist.tar.gz
+            sudo cp -r /tmp/taye-deploy/* /var/www/Taye.WebAPI/wwwroot/
+            sudo rm -rf /tmp/taye-deploy
+            echo "✅ 部署完成！"
