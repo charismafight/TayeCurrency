@@ -2,10 +2,9 @@
   <div class="dashboard-container">
     <section class="section-hero">
       <HeroProfile :data="heroData" @view-achievements="() => { }" @view-crafting="() => { }"
-        @refresh-data="() => { }" />
+        @refresh-data="handleRefresh" />
     </section>
 
-    <!-- 其他模块占位 -->
     <section class="section-main">
       <div class="main-left">
         <AchievementWall :achievements="achievementData" />
@@ -14,6 +13,7 @@
         <ChallengeList :challenges="challengeData" />
       </div>
     </section>
+
     <section class="section-bottom">
       <div class="bottom-left">
         <ActivityTimeline :activities="activityData" />
@@ -26,33 +26,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import HeroProfile from '@/components/dashboard/HeroProfile.vue'
 import AchievementWall from '@/components/dashboard/AchievementWall.vue'
 import ChallengeList from '@/components/dashboard/ChallengeList.vue'
 import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue'
 import CraftingTable from '@/components/dashboard/CraftingTable.vue'
 import type { HeroProfileData, Achievement, Challenge, Activity, CraftingItem } from '@/types/dashboard'
+import { dashboardApi } from '@/services/api'
 
-// ===== 英雄数据 =====
 const heroData = ref<HeroProfileData>({
   playerName: 'Taye',
   avatarUrl: '',
-  starBalance: 42,
-  yesterdayBalance: 50,
-  weeklyEarned: 18,
-  weeklySpent: 7,
-  rank: '⚔️ 屠龙者',
-  nextRank: '🌟 传奇英雄',
-  expPercent: 68,
-  totalStars: 9999
+  starBalance: 0,
+  yesterdayBalance: 0,
+  weeklyEarned: 0,
+  weeklySpent: 0,
+  weeklyPunished: 0,
+  rank: '🌱初入世界',
+  nextRank: '🔥勇敢探险家',
+  expPercent: 0,
+  totalStars: 0
 })
 
-// ===== 其他模拟数据（占位） =====
 const achievementData = ref<Achievement[]>([])
 const challengeData = ref<Challenge[]>([])
 const activityData = ref<Activity[]>([])
 const craftingData = ref<CraftingItem[]>([])
+
+const loadProfile = async () => {
+  try {
+    const data = await dashboardApi.getProfile()
+    heroData.value = data
+  } catch (error) {
+    console.error('加载资料卡数据失败:', error)
+  }
+}
+
+const handleRefresh = () => {
+  window.location.reload()
+}
+
+onMounted(() => {
+  loadProfile()
+})
 </script>
 
 <style scoped>

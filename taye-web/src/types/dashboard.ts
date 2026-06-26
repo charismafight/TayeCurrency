@@ -6,6 +6,7 @@ export interface HeroProfileData {
   yesterdayBalance: number // 昨日余额
   weeklyEarned: number
   weeklySpent: number
+  weeklyPunished: number
   rank: string
   nextRank: string
   expPercent: number

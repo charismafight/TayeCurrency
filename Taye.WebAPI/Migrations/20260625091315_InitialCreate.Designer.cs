@@ -12,7 +12,7 @@ using Taye.WebAPI.Data;
 namespace Taye.WebAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260404171906_InitialCreate")]
+    [Migration("20260625091315_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,6 +25,162 @@ namespace Taye.WebAPI.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Taye.Shared.Entities.LevelConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LevelIcon")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("LevelName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("LevelNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RequiredStars")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LevelConfigs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsActive = true,
+                            LevelIcon = "🌱",
+                            LevelName = "初入世界",
+                            LevelNumber = 1,
+                            RequiredStars = 0,
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsActive = true,
+                            LevelIcon = "🔥",
+                            LevelName = "勇敢探险家",
+                            LevelNumber = 2,
+                            RequiredStars = 50,
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsActive = true,
+                            LevelIcon = "⛏️",
+                            LevelName = "矿工新手",
+                            LevelNumber = 3,
+                            RequiredStars = 120,
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            IsActive = true,
+                            LevelIcon = "🛡️",
+                            LevelName = "铁甲勇士",
+                            LevelNumber = 4,
+                            RequiredStars = 210,
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            IsActive = true,
+                            LevelIcon = "💎",
+                            LevelName = "钻石骑士",
+                            LevelNumber = 5,
+                            RequiredStars = 320,
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            IsActive = true,
+                            LevelIcon = "📖",
+                            LevelName = "附魔大师",
+                            LevelNumber = 6,
+                            RequiredStars = 450,
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            IsActive = true,
+                            LevelIcon = "🔥",
+                            LevelName = "下界探险家",
+                            LevelNumber = 7,
+                            RequiredStars = 600,
+                            SortOrder = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            IsActive = true,
+                            LevelIcon = "🐉",
+                            LevelName = "屠龙者",
+                            LevelNumber = 8,
+                            RequiredStars = 780,
+                            SortOrder = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            IsActive = true,
+                            LevelIcon = "💀",
+                            LevelName = "凋灵克星",
+                            LevelNumber = 9,
+                            RequiredStars = 990,
+                            SortOrder = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            IsActive = true,
+                            LevelIcon = "✨",
+                            LevelName = "信标建造者",
+                            LevelNumber = 10,
+                            RequiredStars = 1230,
+                            SortOrder = 10
+                        },
+                        new
+                        {
+                            Id = 11,
+                            IsActive = true,
+                            LevelIcon = "🔴",
+                            LevelName = "红石工程师",
+                            LevelNumber = 11,
+                            RequiredStars = 1500,
+                            SortOrder = 11
+                        },
+                        new
+                        {
+                            Id = 12,
+                            IsActive = true,
+                            LevelIcon = "🧱",
+                            LevelName = "传说工匠",
+                            LevelNumber = 12,
+                            RequiredStars = 1800,
+                            SortOrder = 12
+                        });
+                });
+
             modelBuilder.Entity("Taye.Shared.Entities.ReasonTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -34,7 +190,11 @@ namespace Taye.WebAPI.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -60,7 +220,7 @@ namespace Taye.WebAPI.Migrations
                         .HasColumnType("character varying(10)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -77,6 +237,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -1,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "✍️",
                             IsActive = true,
                             Reason = "拼写本、写字书或者课练A+甲+",
                             SortOrder = 1,
@@ -87,6 +248,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -2,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "⭐",
                             IsActive = true,
                             Reason = "老师表扬学校优秀表现",
                             SortOrder = 2,
@@ -97,6 +259,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -3,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📜",
                             IsActive = true,
                             Reason = "默写古诗全对",
                             SortOrder = 3,
@@ -107,6 +270,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -4,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📝",
                             IsActive = true,
                             Reason = "听写A+甲+",
                             SortOrder = 4,
@@ -117,6 +281,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -5,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📚",
                             IsActive = true,
                             Reason = "Khan完成一个unit的学习",
                             SortOrder = 5,
@@ -127,6 +292,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -6,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🌟",
                             IsActive = true,
                             Reason = "老师在作业本上写表扬文字",
                             SortOrder = 6,
@@ -137,6 +303,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -7,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🏆",
                             IsActive = true,
                             Reason = "考试获得100分（满分100）",
                             SortOrder = 7,
@@ -147,6 +314,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -8,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📊",
                             IsActive = true,
                             Reason = "语文考试A+或者数学考试获得99、98分（满分100）",
                             SortOrder = 8,
@@ -157,6 +325,7 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -9,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🌙",
                             IsActive = true,
                             Reason = "晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床",
                             SortOrder = 9,
@@ -165,11 +334,34 @@ namespace Taye.WebAPI.Migrations
                         },
                         new
                         {
+                            Id = -10,
+                            CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🖋️",
+                            IsActive = true,
+                            Reason = "写话（优秀）",
+                            SortOrder = 10,
+                            StarCount = 3,
+                            Type = "Reward"
+                        },
+                        new
+                        {
+                            Id = -11,
+                            CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🍽️",
+                            IsActive = true,
+                            Reason = "吃饭光盘",
+                            SortOrder = 11,
+                            StarCount = 1,
+                            Type = "Reward"
+                        },
+                        new
+                        {
                             Id = -100,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🍭",
                             IsActive = true,
                             Reason = "购买零食（每1块钱）",
-                            SortOrder = 10,
+                            SortOrder = 20,
                             StarCount = -1,
                             Type = "Spend"
                         },
@@ -177,9 +369,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -101,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🧸",
                             IsActive = true,
                             Reason = "购买玩具（每1块钱）",
-                            SortOrder = 11,
+                            SortOrder = 21,
                             StarCount = -1,
                             Type = "Spend"
                         },
@@ -187,9 +380,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -102,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🎮",
                             IsActive = true,
                             Reason = "玩游戏（每5分钟）",
-                            SortOrder = 12,
+                            SortOrder = 22,
                             StarCount = -1,
                             Type = "Spend"
                         },
@@ -197,9 +391,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -103,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📖",
                             IsActive = true,
                             Reason = "雇佣爸爸读书（麦克狐1章，约10页）",
-                            SortOrder = 13,
+                            SortOrder = 23,
                             StarCount = -1,
                             Type = "Spend"
                         },
@@ -207,9 +402,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -201,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "😴",
                             IsActive = true,
                             Reason = "晚上22:00前没有收好书包，洗漱完毕，换好睡衣，上自己的床",
-                            SortOrder = 13,
+                            SortOrder = 30,
                             StarCount = -1,
                             Type = "Punish"
                         },
@@ -217,9 +413,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -202,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🚽",
                             IsActive = true,
                             Reason = "尿尿忘记冲厕所",
-                            SortOrder = 14,
+                            SortOrder = 31,
                             StarCount = -1,
                             Type = "Punish"
                         },
@@ -227,9 +424,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -203,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🧼",
                             IsActive = true,
                             Reason = "起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）",
-                            SortOrder = 15,
+                            SortOrder = 32,
                             StarCount = -1,
                             Type = "Punish"
                         },
@@ -237,9 +435,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -204,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "🎒",
                             IsActive = true,
                             Reason = "忘记带上课需要的文具、工具、书等等",
-                            SortOrder = 16,
+                            SortOrder = 33,
                             StarCount = -3,
                             Type = "Punish"
                         },
@@ -247,9 +446,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -205,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📉",
                             IsActive = true,
                             Reason = "作业未完成或者各类老师评价得A-以下（不包括A-）",
-                            SortOrder = 17,
+                            SortOrder = 34,
                             StarCount = -2,
                             Type = "Punish"
                         },
@@ -257,9 +457,10 @@ namespace Taye.WebAPI.Migrations
                         {
                             Id = -206,
                             CreatedAt = new DateTime(2026, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Icon = "📋",
                             IsActive = true,
                             Reason = "老师反馈在学校违规违纪行为",
-                            SortOrder = 18,
+                            SortOrder = 35,
                             StarCount = -12,
                             Type = "Punish"
                         });
@@ -275,11 +476,11 @@ namespace Taye.WebAPI.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ImageFileName")
                         .HasMaxLength(200)
@@ -310,7 +511,7 @@ namespace Taye.WebAPI.Migrations
                         .HasColumnType("character varying(10)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(50)

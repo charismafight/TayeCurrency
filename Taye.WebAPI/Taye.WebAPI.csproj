@@ -28,4 +28,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Taye.Shared\Taye.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>

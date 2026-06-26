@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
@@ -20,7 +21,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
         // 配置 JSON 序列化
-        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
@@ -46,7 +47,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
-
+builder.Services.AddScoped<ILevelConfigService, LevelConfigService>();
 builder.Services.AddScoped<IReasonTemplateService, ReasonTemplateService>();
 
 var app = builder.Build();
@@ -57,19 +58,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapScalarApiReference();
-
-// 配置静态文件服务
+//// 配置静态文件服务
 app.UseStaticFiles(); // 这会让 wwwroot 目录下的文件可访问
-
-// 如果需要自定义路径
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
-    RequestPath = "/wwwroot",
-});
-
+app.MapScalarApiReference();
+app.MapGet("/", () => Results.Redirect("/scalar/v1"));
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

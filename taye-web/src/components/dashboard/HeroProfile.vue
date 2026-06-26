@@ -35,9 +35,11 @@
               <span class="player-badge">🎮</span>
             </h1>
             <div class="player-stats">
-              <n-tag size="small" round color="#4ade80" :bordered="false">📈 本周 +{{ data.weeklyEarned }}</n-tag>
-              <n-tag size="small" round color="#f87171" :bordered="false">📉 本周 -{{ data.weeklySpent }}</n-tag>
-              <n-tag size="small" round color="#fbbf24" :bordered="false">🏅 {{ data.totalStars }} 累计</n-tag>
+              <div class="player-stats">
+                <n-tag size="small" round color="#4ade80" :bordered="false">✨ 本周 +{{ data.weeklyEarned }}</n-tag>
+                <n-tag size="small" round color="#f59e0b" :bordered="false">🛒 本周 -{{ data.weeklySpent }}</n-tag>
+                <n-tag size="small" round color="#f87171" :bordered="false">❌ 本周 -{{ data.weeklyPunished }}</n-tag>
+              </div>
             </div>
           </div>
         </div>
@@ -91,7 +93,7 @@
 
           <!-- 快捷操作 -->
           <div class="quick-actions">
-            <n-button size="small" ghost round @click="emit('viewAchievements')">🏆 成就</n-button>
+            <n-button size="small" ghost round @click="handleViewAchievements">🏆 成就</n-button>
             <n-button size="small" ghost round @click="emit('viewCrafting')">🔨 合成台</n-button>
             <n-button size="small" ghost round @click="emit('refreshData')">🔄 刷新</n-button>
           </div>
@@ -104,6 +106,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { HeroProfileData } from '@/types/dashboard'
+import router from '@/router';
 
 const props = defineProps<{
   data: HeroProfileData
@@ -114,6 +117,10 @@ const emit = defineEmits<{
   (e: 'viewCrafting'): void
   (e: 'refreshData'): void
 }>()
+
+const handleViewAchievements = () => {
+  router.push('/achievements')
+}
 
 // ===== 等级计算 =====
 const currentLevel = computed(() => {

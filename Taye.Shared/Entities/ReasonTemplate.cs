@@ -50,6 +50,9 @@ public class ReasonTemplate
     /// </summary>
     public bool IsActive { get; set; } = true;
 
+    [MaxLength(10)]
+    public string? Icon { get; set; }
+
     /// <summary>
     /// 创建时间
     /// </summary>
