@@ -238,6 +238,7 @@ public class StarRecordsController : ControllerBase
                 Notes = createDto.Notes,
                 ImagePath = imagePath,
                 ImageFileName = imageFileName,
+                UserId = Constants.DefaultUserName,
                 CreatedAt = DateTime.UtcNow,
             };
 

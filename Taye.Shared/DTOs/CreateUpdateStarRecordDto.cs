@@ -29,4 +29,7 @@ public class CreateUpdateStarRecordDto
 
     // 图片文件（可选）
     public IFormFile? ImageFile { get; set; }
+
+    [MaxLength(50, ErrorMessage = "用户名过长")]
+    public string? UserId { get; set; }
 }
