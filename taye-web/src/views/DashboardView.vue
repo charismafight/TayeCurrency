@@ -5,21 +5,23 @@
         @refresh-data="handleRefresh" />
     </section>
 
+    <!-- 中部：今日任务 + 合成台 -->
     <section class="section-main">
       <div class="main-left">
-        <AchievementWall :achievements="achievementData" />
+        <DailyTasks :data="tasksData" />
       </div>
       <div class="main-right">
-        <ChallengeList :challenges="challengeData" />
+        <CraftingTable :items="craftingData" />
       </div>
     </section>
 
+    <!-- 底部 -->
     <section class="section-bottom">
       <div class="bottom-left">
-        <ActivityTimeline :activities="activityData" />
+        <ActivityTimeline />
       </div>
       <div class="bottom-right">
-        <CraftingTable :items="craftingData" />
+        <AchievementWall :achievements="achievementData" />
       </div>
     </section>
   </div>
@@ -28,11 +30,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import HeroProfile from '@/components/dashboard/HeroProfile.vue'
+import DailyTasks from '@/components/dashboard/DailyTasks.vue'
 import AchievementWall from '@/components/dashboard/AchievementWall.vue'
-import ChallengeList from '@/components/dashboard/ChallengeList.vue'
 import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue'
 import CraftingTable from '@/components/dashboard/CraftingTable.vue'
-import type { HeroProfileData, Achievement, Challenge, Activity, CraftingItem } from '@/types/dashboard'
+import type { HeroProfileData, Achievement, TasksData, Activity, CraftingItem } from '@/types/dashboard'
 import { dashboardApi } from '@/services/api'
 
 const heroData = ref<HeroProfileData>({
@@ -49,8 +51,24 @@ const heroData = ref<HeroProfileData>({
   totalStars: 0
 })
 
+const tasksData = ref<TasksData>({
+  date: '',
+  tasks: [],
+  allCompleted: false,
+  bonusStars: 1,
+  bonusEarned: false
+})
+
+const loadTasks = async () => {
+  try {
+    const data = await dashboardApi.getTasks()
+    tasksData.value = data
+  } catch (error) {
+    console.error('加载任务数据失败:', error)
+  }
+}
+
 const achievementData = ref<Achievement[]>([])
-const challengeData = ref<Challenge[]>([])
 const activityData = ref<Activity[]>([])
 const craftingData = ref<CraftingItem[]>([])
 
@@ -69,6 +87,7 @@ const handleRefresh = () => {
 
 onMounted(() => {
   loadProfile()
+  loadTasks()
 })
 </script>
 

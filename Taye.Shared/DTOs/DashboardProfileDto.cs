@@ -10,7 +10,7 @@ public class DashboardProfileDto
     /// <summary>
     /// 玩家名称
     /// </summary>
-    public string PlayerName { get; set; } = "Taye";
+    public string PlayerName { get; set; } = Constants.DefaultUserName;
 
     /// <summary>
     /// 当前星星余额

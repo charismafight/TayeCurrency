@@ -54,3 +54,39 @@ export interface CraftingItem {
   available: boolean
   status: 'craftable' | 'insufficient' | 'pending'
 }
+
+// 任务
+export interface TaskItem {
+  id: string
+  name: string
+  icon: string
+  target: number
+  current: number
+  isCompleted: boolean
+}
+
+export interface TasksData {
+  date: string
+  tasks: TaskItem[]
+  allCompleted: boolean
+  bonusStars: number
+  bonusEarned: boolean
+}
+
+// 星轨日志
+export interface ActivityItem {
+  id: number
+  date: string        // "2026-06-27T15:30:00"
+  starCount: number   // 正数奖励，负数消耗
+  reason: string
+  type: string        // "Reward" | "Spend" | "Punish"
+  imagePath: string | null
+  imageFileName: string | null
+}
+
+export interface ActivitiesData {
+  items: ActivityItem[]
+  totalCount: number
+  page: number
+  pageSize: number
+}

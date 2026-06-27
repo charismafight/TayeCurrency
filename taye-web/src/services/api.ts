@@ -1,4 +1,4 @@
-import type { HeroProfileData } from '@/types/dashboard'
+import type { HeroProfileData, TasksData, ActivitiesData } from '@/types/dashboard'
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:5001'
@@ -34,6 +34,14 @@ const get = async <T>(url: string): Promise<T> => {
 
 export const dashboardApi = {
   getProfile: () => get<HeroProfileData>('/dashboard/profile'),
+  getTasks: () => get<TasksData>('/dashboard/tasks'),
+  getActivities: (page: number = 1, pageSize: number = 20, type?: string) => {
+    const params = new URLSearchParams()
+    params.append('page', String(page))
+    params.append('pageSize', String(pageSize))
+    if (type) params.append('type', type)
+    return get<ActivitiesData>(`/dashboard/activities?${params.toString()}`)
+  },
 }
 
 export default apiClient

@@ -5,6 +5,7 @@ using Taye.Shared.DTOs;
 using Taye.WebAPI.Data;
 using Taye.WebAPI.Services;
 using System.Threading.Tasks;
+using Taye.Shared;
 
 namespace Taye.WebAPI.Controllers;
 
@@ -17,13 +18,16 @@ public class StarRecordsController : ControllerBase
     private readonly ILogger<StarRecordsController> _logger;
     private readonly IFileUploadService _fileUploadService;
     private readonly IReasonTemplateService _reasonTemplateService;
+    private readonly ITaskService _taskService;
 
-    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService, IReasonTemplateService reasonTemplateService)
+
+    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService, IReasonTemplateService reasonTemplateService, ITaskService taskService)
     {
         _context = context;
         _logger = logger;
         _fileUploadService = fileUploadService;
         _reasonTemplateService = reasonTemplateService;
+        _taskService = taskService;
     }
 
     /// <summary>
@@ -239,6 +243,8 @@ public class StarRecordsController : ControllerBase
 
             _context.StarRecords.Add(record);
             await _context.SaveChangesAsync();
+
+            await _taskService.RefreshTodayTasksAsync(Constants.DefaultUserName);
 
             // 返回 DTO
             var dto = new StarRecordDto

@@ -49,6 +49,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<ILevelConfigService, LevelConfigService>();
 builder.Services.AddScoped<IReasonTemplateService, ReasonTemplateService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 var app = builder.Build();
 

@@ -7,12 +7,17 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+        {
+            Database.EnsureCreated();
+        }
     }
 
     // 数据库表映射
     public DbSet<StarRecord> StarRecords { get; set; }
     public DbSet<ReasonTemplate> ReasonTemplates { get; set; }
     public DbSet<LevelConfig> LevelConfigs { get; set; }
+    public DbSet<TaskCompletion> TaskCompletions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +78,13 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.SortOrder);
         });
 
+        modelBuilder.Entity<TaskCompletion>(entity =>
+        {
+            entity.HasIndex(e => new { e.TaskId, e.PeriodKey }).IsUnique();
+            entity.HasIndex(e => e.PeriodKey);
+            entity.HasIndex(e => e.PeriodType);
+        });
+
         // 种子数据：初始化默认模板
         var fixedDate = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -102,7 +114,10 @@ public class AppDbContext : DbContext
             new ReasonTemplate { Id = -203, Reason = "起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）", StarCount = -1, Type = "Punish", SortOrder = 32, IsActive = true, Icon = "🧼", CreatedAt = fixedDate },
             new ReasonTemplate { Id = -204, Reason = "忘记带上课需要的文具、工具、书等等", StarCount = -3, Type = "Punish", SortOrder = 33, IsActive = true, Icon = "🎒", CreatedAt = fixedDate },
             new ReasonTemplate { Id = -205, Reason = "作业未完成或者各类老师评价得A-以下（不包括A-）", StarCount = -2, Type = "Punish", SortOrder = 34, IsActive = true, Icon = "📉", CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -206, Reason = "老师反馈在学校违规违纪行为", StarCount = -12, Type = "Punish", SortOrder = 35, IsActive = true, Icon = "📋", CreatedAt = fixedDate });
+            new ReasonTemplate { Id = -206, Reason = "老师反馈在学校违规违纪行为", StarCount = -12, Type = "Punish", SortOrder = 35, IsActive = true, Icon = "📋", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -12, Reason = "吃完饭清理桌面并收碗", StarCount = 1, Type = "Reward", SortOrder = 12, IsActive = true, Icon = "🧹", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -13, Reason = "主动完成常规作业", StarCount = 1, Type = "Reward", SortOrder = 13, IsActive = true, Icon = "📋", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -14, Reason = "读完一本书并写一篇心得", StarCount = 12, Type = "Reward", SortOrder = 14, IsActive = true, Icon = "📚", CreatedAt = fixedDate });
 
         // ========== LevelConfig 种子数据 ==========
         modelBuilder.Entity<LevelConfig>().HasData(

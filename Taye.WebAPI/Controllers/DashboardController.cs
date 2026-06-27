@@ -7,6 +7,7 @@ using Taye.WebAPI.Services;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using Taye.Shared;
 
 namespace Taye.WebAPI.Controllers;
 
@@ -19,17 +20,20 @@ public class DashboardController : ControllerBase
     private readonly ILogger<DashboardController> _logger;
     private readonly IReasonTemplateService _reasonTemplateService;
     private readonly ILevelConfigService _levelConfigService;
+    private readonly ITaskService _taskService;
 
     public DashboardController(
         AppDbContext context,
         ILogger<DashboardController> logger,
         IReasonTemplateService reasonTemplateService,
-        ILevelConfigService levelConfigService)
+        ILevelConfigService levelConfigService,
+        ITaskService taskService)
     {
         _context = context;
         _logger = logger;
         _reasonTemplateService = reasonTemplateService;
         _levelConfigService = levelConfigService;
+        _taskService = taskService;
     }
 
     /// <summary>
@@ -86,7 +90,7 @@ public class DashboardController : ControllerBase
 
             var dto = new DashboardProfileDto
             {
-                PlayerName = "Taye", // 后续可从配置表读取
+                PlayerName = Constants.DefaultUserName, // 后续可从配置表读取
                 StarBalance = starBalance,
                 YesterdayBalance = yesterdayBalance,
                 WeeklyEarned = weeklyEarned,
@@ -104,144 +108,6 @@ public class DashboardController : ControllerBase
         {
             _logger.LogError(ex, "获取资料卡数据失败");
             return StatusCode(500, APIResponse<DashboardProfileDto>.Fail("获取数据失败：" + ex.Message));
-        }
-    }
-
-    /// <summary>
-    /// 获取今日任务列表
-    /// </summary>
-    [HttpGet("tasks")]
-    [ProducesResponseType(typeof(APIResponse<List<DashboardTaskDto>>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<APIResponse<List<DashboardTaskDto>>>> GetTasks(
-        [FromQuery] string? userId = null)
-    {
-        try
-        {
-            var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
-            if (startOfWeek > today) startOfWeek = startOfWeek.AddDays(-7);
-
-            var query = _context.StarRecords.AsQueryable();
-            if (!string.IsNullOrEmpty(userId))
-                query = query.Where(r => r.UserId == userId);
-
-            // 获取本周所有 Reward 类型的记录
-            var weekRecords = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Date <= today)
-                .GroupBy(r => r.Reason)
-                .Select(g => new
-                {
-                    Reason = g.Key,
-                    Count = g.Count(),
-                    TotalStars = g.Sum(r => r.StarCount)
-                })
-                .ToListAsync();
-
-            // 获取本周所有 Spend 类型的记录
-            var spendRecords = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Date <= today && r.StarCount < 0)
-                .GroupBy(r => r.Reason)
-                .Select(g => new
-                {
-                    Reason = g.Key,
-                    Count = g.Count(),
-                    TotalStars = g.Sum(r => -r.StarCount)
-                })
-                .ToListAsync();
-
-            var tasks = new List<DashboardTaskDto>();
-
-            // 1. 早睡达人：本周 21:30前上床 达到 5 天
-            var earlyBedCount = weekRecords
-                .Where(r => r.Reason.Contains("21:30") || r.Reason.Contains("上床"))
-                .Sum(r => r.Count);
-            tasks.Add(new DashboardTaskDto
-            {
-                Id = 1,
-                Name = "早睡达人",
-                Description = "本周 21:30 前上床睡觉 5 天",
-                Icon = "🌙",
-                CurrentProgress = Math.Min(earlyBedCount, 5),
-                TargetProgress = 5,
-                BonusStars = 1,
-                IsCompleted = earlyBedCount >= 5,
-                Type = "Weekly"
-            });
-
-            // 2. 光盘行动：本周 吃饭光盘 达到 7 次
-            var cleanPlateCount = weekRecords
-                .Where(r => r.Reason.Contains("光盘") || r.Reason.Contains("吃饭"))
-                .Sum(r => r.Count);
-            tasks.Add(new DashboardTaskDto
-            {
-                Id = 2,
-                Name = "光盘行动",
-                Description = "本周吃完每顿饭 7 次",
-                Icon = "🍽️",
-                CurrentProgress = Math.Min(cleanPlateCount, 7),
-                TargetProgress = 7,
-                BonusStars = 1,
-                IsCompleted = cleanPlateCount >= 7,
-                Type = "Weekly"
-            });
-
-            // 3. 满分猎人：本周考试100分达到 2 次
-            var perfectScoreCount = weekRecords
-                .Where(r => r.Reason.Contains("100分") || r.Reason.Contains("满分"))
-                .Sum(r => r.Count);
-            tasks.Add(new DashboardTaskDto
-            {
-                Id = 3,
-                Name = "满分猎人",
-                Description = "本周考试获得 100 分 2 次",
-                Icon = "📝",
-                CurrentProgress = Math.Min(perfectScoreCount, 2),
-                TargetProgress = 2,
-                BonusStars = 2,
-                IsCompleted = perfectScoreCount >= 2,
-                Type = "Weekly"
-            });
-
-            // 4. 无违纪周：本周没有违规记录
-            var violationCount = spendRecords
-                .Where(r => r.Reason.Contains("违规") || r.Reason.Contains("违纪"))
-                .Sum(r => r.Count);
-            tasks.Add(new DashboardTaskDto
-            {
-                Id = 4,
-                Name = "无违纪周",
-                Description = "本周没有学校违规记录",
-                Icon = "🛡️",
-                CurrentProgress = violationCount == 0 ? 1 : 0,
-                TargetProgress = 1,
-                BonusStars = 1,
-                IsCompleted = violationCount == 0,
-                Type = "Weekly"
-            });
-
-            // 5. 学习之星：本周获得星星达到 10 颗
-            var weekTotalEarned = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Date <= today && r.StarCount > 0)
-                .SumAsync(r => r.StarCount);
-            tasks.Add(new DashboardTaskDto
-            {
-                Id = 5,
-                Name = "学习之星",
-                Description = "本周通过好表现获得 10 颗星星",
-                Icon = "⭐",
-                CurrentProgress = Math.Min(weekTotalEarned, 10),
-                TargetProgress = 10,
-                BonusStars = 1,
-                IsCompleted = weekTotalEarned >= 10,
-                Type = "Weekly"
-            });
-
-            return Ok(APIResponse<List<DashboardTaskDto>>.Ok(tasks));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "获取任务列表失败");
-            return StatusCode(500, APIResponse<List<DashboardTaskDto>>.Fail("获取任务失败：" + ex.Message));
         }
     }
 
@@ -302,7 +168,7 @@ public class DashboardController : ControllerBase
     [ProducesResponseType(typeof(APIResponse<PagedResult<DashboardActivityDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<APIResponse<PagedResult<DashboardActivityDto>>>> GetActivities(
         [FromQuery] string? type,
-        [FromQuery] string? userId = null,
+        [FromQuery] string? userId = "Taye",
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)
     {
@@ -358,6 +224,22 @@ public class DashboardController : ControllerBase
         {
             _logger.LogError(ex, "获取活动日志失败");
             return StatusCode(500, APIResponse<PagedResult<DashboardActivityDto>>.Fail("获取日志失败：" + ex.Message));
+        }
+    }
+
+    [HttpGet("tasks")]
+    [ProducesResponseType(typeof(APIResponse<TasksResponseDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<APIResponse<TasksResponseDto>>> GetTasks([FromQuery] string? userId = null)
+    {
+        try
+        {
+            var result = await _taskService.GetTodayTasksAsync(userId);
+            return Ok(APIResponse<TasksResponseDto>.Ok(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "获取今日任务失败");
+            return StatusCode(500, APIResponse<TasksResponseDto>.Fail("获取任务失败：" + ex.Message));
         }
     }
 
