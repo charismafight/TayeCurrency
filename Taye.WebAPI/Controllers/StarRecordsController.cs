@@ -424,100 +424,74 @@ public class StarRecordsController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// 获取统计数据
-    /// </summary>
     [HttpGet("statistics")]
-    [ProducesResponseType(typeof(APIResponse<StarStatisticsDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<APIResponse<StarStatisticsDto>>> GetStatistics(
         [FromQuery] string? userId = null)
     {
         try
         {
             var query = _context.StarRecords.AsQueryable();
-
             if (!string.IsNullOrEmpty(userId))
                 query = query.Where(r => r.UserId == userId);
 
             var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
             var startOfMonth = new DateTime(today.Year, today.Month, 1);
 
-            // 总获得（正数星星）
-            var totalGain = await query
-                .Where(r => r.StarCount > 0)
-                .SumAsync(r => r.StarCount);
+            // 一次查询聚合所有数据
+            var stats = await query
+                .GroupBy(r => 1)
+                .Select(g => new
+                {
+                    TotalGain = g.Sum(r => r.StarCount > 0 ? r.StarCount : 0),
+                    TotalSpend = g.Sum(r => r.StarCount < 0 ? -r.StarCount : 0),
+                    TodayGain = g.Sum(r => r.Date == today && r.StarCount > 0 ? r.StarCount : 0),
+                    TodaySpend = g.Sum(r => r.Date == today && r.StarCount < 0 ? -r.StarCount : 0),
+                    WeekGain = g.Sum(r => r.Date >= startOfWeek && r.StarCount > 0 ? r.StarCount : 0),
+                    WeekSpend = g.Sum(r => r.Date >= startOfWeek && r.StarCount < 0 ? -r.StarCount : 0),
+                    MonthGain = g.Sum(r => r.Date >= startOfMonth && r.StarCount > 0 ? r.StarCount : 0),
+                    MonthSpend = g.Sum(r => r.Date >= startOfMonth && r.StarCount < 0 ? -r.StarCount : 0)
+                })
+                .FirstOrDefaultAsync();
 
-            // 总消费（负数星星的绝对值）
-            var totalSpend = await query
-                .Where(r => r.StarCount < 0)
-                .SumAsync(r => -r.StarCount);
+            // 最近7天（一次查询）
+            var last7Days = await query
+                .Where(r => r.Date >= today.AddDays(-6))
+                .GroupBy(r => r.Date.Date)
+                .Select(g => new DailyStarDto
+                {
+                    Date = g.Key,
+                    Gain = g.Sum(r => r.StarCount > 0 ? r.StarCount : 0),
+                    Spend = g.Sum(r => r.StarCount < 0 ? -r.StarCount : 0)
+                })
+                .ToListAsync();
 
-            // 今日获得
-            var todayGain = await query
-                .Where(r => r.Date == today && r.StarCount > 0)
-                .SumAsync(r => r.StarCount);
-
-            // 今日消费
-            var todaySpend = await query
-                .Where(r => r.Date == today && r.StarCount < 0)
-                .SumAsync(r => -r.StarCount);
-
-            // 本周获得
-            var weekGain = await query
-                .Where(r => r.Date >= startOfWeek && r.StarCount > 0)
-                .SumAsync(r => r.StarCount);
-
-            // 本周消费
-            var weekSpend = await query
-                .Where(r => r.Date >= startOfWeek && r.StarCount < 0)
-                .SumAsync(r => -r.StarCount);
-
-            // 本月获得
-            var monthGain = await query
-                .Where(r => r.Date >= startOfMonth && r.StarCount > 0)
-                .SumAsync(r => r.StarCount);
-
-            // 本月消费
-            var monthSpend = await query
-                .Where(r => r.Date >= startOfMonth && r.StarCount < 0)
-                .SumAsync(r => -r.StarCount);
-
-            // 最近7天数据
-            var last7Days = new List<DailyStarDto>();
+            // 补全最近7天（没有记录的天数补 0）
+            var recentDays = new List<DailyStarDto>();
             for (int i = 6; i >= 0; i--)
             {
                 var day = today.AddDays(-i);
-                var dayGain = await query
-                    .Where(r => r.Date == day && r.StarCount > 0)
-                    .SumAsync(r => r.StarCount);
-
-                var daySpend = await query
-                    .Where(r => r.Date == day && r.StarCount < 0)
-                    .SumAsync(r => -r.StarCount);
-
-                last7Days.Add(new DailyStarDto
+                var existing = last7Days.FirstOrDefault(d => d.Date == day);
+                recentDays.Add(new DailyStarDto
                 {
                     Date = day,
-                    Gain = dayGain,
-                    Spend = daySpend
+                    Gain = existing?.Gain ?? 0,
+                    Spend = existing?.Spend ?? 0
                 });
             }
 
-            var statistics = new StarStatisticsDto
+            return Ok(APIResponse<StarStatisticsDto>.Ok(new StarStatisticsDto
             {
-                TotalGain = totalGain,
-                TotalSpend = totalSpend,
-                TodayGain = todayGain,
-                TodaySpend = todaySpend,
-                WeekGain = weekGain,
-                WeekSpend = weekSpend,
-                MonthGain = monthGain,
-                MonthSpend = monthSpend,
-                RecentDays = last7Days
-            };
-
-            return Ok(APIResponse<StarStatisticsDto>.Ok(statistics));
+                TotalGain = stats?.TotalGain ?? 0,
+                TotalSpend = stats?.TotalSpend ?? 0,
+                TodayGain = stats?.TodayGain ?? 0,
+                TodaySpend = stats?.TodaySpend ?? 0,
+                WeekGain = stats?.WeekGain ?? 0,
+                WeekSpend = stats?.WeekSpend ?? 0,
+                MonthGain = stats?.MonthGain ?? 0,
+                MonthSpend = stats?.MonthSpend ?? 0,
+                RecentDays = recentDays
+            }));
         }
         catch (Exception ex)
         {

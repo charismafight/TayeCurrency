@@ -13,17 +13,6 @@ export interface HeroProfileData {
   totalStars: number
 }
 
-// 成就
-export interface Achievement {
-  id: number
-  name: string
-  icon: string
-  category: '学业' | '生活' | '校园'
-  count: number      // 本周完成次数
-  emeralds: number   // 获得星币
-  unlocked: boolean
-}
-
 // 挑战
 export interface Challenge {
   id: number
@@ -102,7 +91,7 @@ export interface Achievement {
   id: string
   name: string
   icon: string
-  category: string
+  category: '学业' | '生活' | '校园'  // 明确字面量类型
   currentCount: number
   milestones: Milestone[]
   unlockedMilestoneIndex: number
