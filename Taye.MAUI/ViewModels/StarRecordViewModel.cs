@@ -93,10 +93,11 @@ public partial class StarRecordViewModel : ObservableObject
         // 直接调用异步方法（不使用 await，避免阻塞）
         Task.Run(async () => await LoadReasonsByType(Type));
     }
-
     [RelayCommand]
     public async Task LoadData()
     {
+        if (IsLoading) return;  // 防止重复执行
+
         IsLoading = true;
         _currentPage = 1;
         _hasMoreData = true;
@@ -104,13 +105,19 @@ public partial class StarRecordViewModel : ObservableObject
 
         try
         {
-            await LoadRecords();
-            await LoadStatistics();
+            await LoadRecords();        // 先等这个完成
+            await LoadStatistics();     // 再执行这个
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    public async Task FilterRecords()
+    {
+        await LoadData();  // 直接复用，不要重复写逻辑
     }
 
     private async Task LoadRecords()
@@ -166,23 +173,6 @@ public partial class StarRecordViewModel : ObservableObject
         finally
         {
             IsLoadingMore = false;
-        }
-    }
-
-    [RelayCommand]
-    public async Task FilterRecords()
-    {
-        IsLoading = true;
-        _currentPage = 1;
-        _hasMoreData = true;
-        try
-        {
-            await LoadRecords();
-            await LoadStatistics();
-        }
-        finally
-        {
-            IsLoading = false;
         }
     }
 
@@ -382,8 +372,8 @@ public partial class StarRecordViewModel : ObservableObject
         {
             System.Diagnostics.Debug.WriteLine($"开始加载 {type} 类型的原因列表");
 
-            // 先清空
-            await MainThread.InvokeOnMainThreadAsync(() =>
+            // 先清空 - 使用 Dispatcher
+            await Application.Current?.Dispatcher.DispatchAsync(() =>
             {
                 QuickReasons.Clear();
                 ReasonStarMap.Clear();
@@ -392,10 +382,9 @@ public partial class StarRecordViewModel : ObservableObject
             var response = await _apiService.GetReasonTemplatesAsync(type);
             if (response.Success && response.Data != null)
             {
-                await MainThread.InvokeOnMainThreadAsync(() =>
+                await Application.Current?.Dispatcher.DispatchAsync(() =>
                 {
                     ReasonStarMap = response.Data;
-                    // 逐个添加，确保 ObservableCollection 触发 CollectionChanged 事件
                     foreach (var key in ReasonStarMap.Keys)
                     {
                         QuickReasons.Add(key);

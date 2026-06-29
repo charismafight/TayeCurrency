@@ -18,11 +18,14 @@ public partial class MainPage : ContentPage
         }
     }
 
+    private bool _isFirstLoad = true;
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        if (BindingContext is StarRecordViewModel vm)
+        if (_isFirstLoad && BindingContext is StarRecordViewModel vm)
         {
+            _isFirstLoad = false;
             await vm.LoadData();
         }
     }

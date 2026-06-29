@@ -12,8 +12,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <WindowsPackageType>None</WindowsPackageType>
-
     <!-- 显示名称 -->
     <ApplicationTitle>Taye.Currency</ApplicationTitle>
 
