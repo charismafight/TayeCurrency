@@ -18,6 +18,8 @@ public class AppDbContext : DbContext
     public DbSet<ReasonTemplate> ReasonTemplates { get; set; }
     public DbSet<LevelConfig> LevelConfigs { get; set; }
     public DbSet<TaskCompletion> TaskCompletions { get; set; }
+    public DbSet<AchievementDefinition> AchievementDefinitions { get; set; }
+    public DbSet<PlayerAchievement> PlayerAchievements { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -85,6 +87,18 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => e.PeriodType);
         });
 
+        modelBuilder.Entity<AchievementDefinition>(entity =>
+        {
+            entity.HasIndex(e => e.AchievementId).IsUnique();
+            entity.HasIndex(e => e.IsActive);
+        });
+
+        modelBuilder.Entity<PlayerAchievement>(entity =>
+        {
+            entity.HasIndex(e => new { e.AchievementId, e.UserId }).IsUnique();
+            entity.HasIndex(e => e.UserId);
+        });
+
         // 种子数据：初始化默认模板
         var fixedDate = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -103,10 +117,10 @@ public class AppDbContext : DbContext
             new ReasonTemplate { Id = -11, Reason = "吃饭光盘", StarCount = 1, Type = "Reward", SortOrder = 11, IsActive = true, Icon = "🍽️", CreatedAt = fixedDate },
 
             // 花费类
-            new ReasonTemplate { Id = -100, Reason = "购买零食（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 20, IsActive = true, Icon = "🍭", CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -101, Reason = "购买玩具（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 21, IsActive = true, Icon = "🧸", CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -102, Reason = "玩游戏（每5分钟）", StarCount = -1, Type = "Spend", SortOrder = 22, IsActive = true, Icon = "🎮", CreatedAt = fixedDate },
-            new ReasonTemplate { Id = -103, Reason = "雇佣爸爸读书（麦克狐1章，约10页）", StarCount = -1, Type = "Spend", SortOrder = 23, IsActive = true, Icon = "📖", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -100, Reason = "兑换零食（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 20, IsActive = true, Icon = "🍭", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -101, Reason = "兑换玩具（每1块钱）", StarCount = -1, Type = "Spend", SortOrder = 21, IsActive = true, Icon = "🧸", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -102, Reason = "兑换游戏时长（每5分钟）", StarCount = -1, Type = "Spend", SortOrder = 22, IsActive = true, Icon = "🎮", CreatedAt = fixedDate },
+            new ReasonTemplate { Id = -103, Reason = "雇佣爸爸读书（每5分钟）", StarCount = -1, Type = "Spend", SortOrder = 23, IsActive = true, Icon = "📖", CreatedAt = fixedDate },
 
             // 惩罚类
             new ReasonTemplate { Id = -201, Reason = "晚上22:00前没有收好书包，洗漱完毕，换好睡衣，上自己的床", StarCount = -1, Type = "Punish", SortOrder = 30, IsActive = true, Icon = "😴", CreatedAt = fixedDate },
@@ -133,6 +147,187 @@ public class AppDbContext : DbContext
             new LevelConfig { Id = 10, LevelNumber = 10, LevelName = "信标建造者", LevelIcon = "✨", RequiredStars = 1230, IsActive = true, SortOrder = 10 },
             new LevelConfig { Id = 11, LevelNumber = 11, LevelName = "红石工程师", LevelIcon = "🔴", RequiredStars = 1500, IsActive = true, SortOrder = 11 },
             new LevelConfig { Id = 12, LevelNumber = 12, LevelName = "传说工匠", LevelIcon = "🧱", RequiredStars = 1800, IsActive = true, SortOrder = 12 }
+        );
+
+        // 里程碑成就
+        modelBuilder.Entity<AchievementDefinition>().HasData(
+            new AchievementDefinition
+            {
+                Id = -1,
+                AchievementId = "perfect_score",
+                Name = "满分猎人",
+                Icon = "🏆",
+                Category = "学业",
+                MatchReason = "考试获得100分",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":5,\"title\":\"达人\",\"bonus\":3},{\"count\":10,\"title\":\"大师\",\"bonus\":5},{\"count\":20,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 1
+            },
+            new AchievementDefinition
+            {
+                Id = -2,
+                AchievementId = "dictation",
+                Name = "听写大师",
+                Icon = "📝",
+                Category = "学业",
+                MatchReason = "听写A+甲+",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":5,\"title\":\"达人\",\"bonus\":3},{\"count\":10,\"title\":\"大师\",\"bonus\":5},{\"count\":20,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 2
+            },
+            new AchievementDefinition
+            {
+                Id = -3,
+                AchievementId = "recite",
+                Name = "古诗达人",
+                Icon = "📜",
+                Category = "学业",
+                MatchReason = "默写古诗全对",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":5,\"title\":\"达人\",\"bonus\":3},{\"count\":10,\"title\":\"大师\",\"bonus\":5},{\"count\":20,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 3
+            },
+            new AchievementDefinition
+            {
+                Id = -4,
+                AchievementId = "homework",
+                Name = "作业精英",
+                Icon = "✍️",
+                Category = "学业",
+                MatchReason = "拼写本、写字书或者课练A+",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":5,\"title\":\"达人\",\"bonus\":3},{\"count\":10,\"title\":\"大师\",\"bonus\":5},{\"count\":20,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 4
+            },
+            new AchievementDefinition
+            {
+                Id = -5,
+                AchievementId = "praise",
+                Name = "表扬信",
+                Icon = "🌟",
+                Category = "学业",
+                MatchReason = "老师在作业本上写表扬文字",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":3,\"title\":\"达人\",\"bonus\":3},{\"count\":5,\"title\":\"大师\",\"bonus\":5}]",
+                SortOrder = 5
+            },
+            new AchievementDefinition
+            {
+                Id = -6,
+                AchievementId = "khan",
+                Name = "Khan学霸",
+                Icon = "📚",
+                Category = "学业",
+                MatchReason = "完成Khan unit",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":3,\"title\":\"达人\",\"bonus\":3},{\"count\":5,\"title\":\"大师\",\"bonus\":5}]",
+                SortOrder = 6
+            },
+            new AchievementDefinition
+            {
+                Id = -7,
+                AchievementId = "write",
+                Name = "写话之星",
+                Icon = "🖋️",
+                Category = "学业",
+                MatchReason = "写话（优秀）",
+                MilestonesJson = "[{\"count\":1,\"title\":\"新秀\",\"bonus\":1},{\"count\":3,\"title\":\"达人\",\"bonus\":3},{\"count\":5,\"title\":\"大师\",\"bonus\":5}]",
+                SortOrder = 7
+            },
+            new AchievementDefinition
+            {
+                Id = -8,
+                AchievementId = "bedtime",
+                Name = "早睡达人",
+                Icon = "🌙",
+                Category = "生活",
+                MatchReason = "晚上21:30前",
+                MilestonesJson = "[{\"count\":3,\"title\":\"新秀\",\"bonus\":1},{\"count\":7,\"title\":\"达人\",\"bonus\":3},{\"count\":14,\"title\":\"大师\",\"bonus\":5},{\"count\":30,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 8
+            },
+            new AchievementDefinition
+            {
+                Id = -9,
+                AchievementId = "clean_plate",
+                Name = "光盘行动",
+                Icon = "🍽️",
+                Category = "生活",
+                MatchReason = "吃饭光盘",
+                MilestonesJson = "[{\"count\":3,\"title\":\"新秀\",\"bonus\":1},{\"count\":7,\"title\":\"达人\",\"bonus\":3},{\"count\":14,\"title\":\"大师\",\"bonus\":5},{\"count\":30,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 9
+            },
+            new AchievementDefinition
+            {
+                Id = -10,
+                AchievementId = "tidy_table",
+                Name = "整理小能手",
+                Icon = "🧹",
+                Category = "生活",
+                MatchReason = "吃完饭清理桌面并收碗",
+                MilestonesJson = "[{\"count\":3,\"title\":\"新秀\",\"bonus\":1},{\"count\":7,\"title\":\"达人\",\"bonus\":3},{\"count\":14,\"title\":\"大师\",\"bonus\":5},{\"count\":30,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 10
+            },
+            new AchievementDefinition
+            {
+                Id = -11,
+                AchievementId = "homework_pro",
+                Name = "作业小先锋",
+                Icon = "📋",
+                Category = "生活",
+                MatchReason = "主动完成常规作业",
+                MilestonesJson = "[{\"count\":3,\"title\":\"新秀\",\"bonus\":1},{\"count\":7,\"title\":\"达人\",\"bonus\":3},{\"count\":14,\"title\":\"大师\",\"bonus\":5},{\"count\":30,\"title\":\"传奇\",\"bonus\":8}]",
+                SortOrder = 11
+            }
+        );
+
+        // 隐藏成就
+        modelBuilder.Entity<AchievementDefinition>().HasData(
+            new AchievementDefinition
+            {
+                Id = -100,
+                AchievementId = "early_bird",
+                Name = "早起鸟",
+                Icon = "🌅",
+                Category = "隐藏",
+                MatchReason = "",
+                IsHidden = true,
+                TriggerConfig = "{}",
+                MilestonesJson = "[{\"count\":1,\"title\":\"解锁\",\"bonus\":2}]",
+                SortOrder = 100
+            },
+            new AchievementDefinition
+            {
+                Id = -101,
+                AchievementId = "bookworm",
+                Name = "读书人",
+                Icon = "📖",
+                Category = "隐藏",
+                MatchReason = "",
+                IsHidden = true,
+                TriggerConfig = "{}",
+                MilestonesJson = "[{\"count\":1,\"title\":\"解锁\",\"bonus\":3}]",
+                SortOrder = 101
+            },
+            new AchievementDefinition
+            {
+                Id = -102,
+                AchievementId = "self_discipline",
+                Name = "自律小达人",
+                Icon = "⏰",
+                Category = "隐藏",
+                MatchReason = "",
+                IsHidden = true,
+                TriggerConfig = "{}",
+                MilestonesJson = "[{\"count\":1,\"title\":\"解锁\",\"bonus\":5}]",
+                SortOrder = 102
+            },
+            new AchievementDefinition
+            {
+                Id = -103,
+                AchievementId = "all_around",
+                Name = "全能小选手",
+                Icon = "🌟",
+                Category = "隐藏",
+                MatchReason = "",
+                IsHidden = true,
+                TriggerConfig = "{}",
+                MilestonesJson = "[{\"count\":1,\"title\":\"解锁\",\"bonus\":5}]",
+                SortOrder = 103
+            }
         );
     }
 }

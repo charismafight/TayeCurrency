@@ -90,3 +90,24 @@ export interface ActivitiesData {
   page: number
   pageSize: number
 }
+
+// 成就
+export interface Milestone {
+  count: number
+  title: string
+  bonus: number
+}
+
+export interface Achievement {
+  id: string
+  name: string
+  icon: string
+  category: string
+  currentCount: number
+  milestones: Milestone[]
+  unlockedMilestoneIndex: number
+  isUnlocked: boolean
+  isHidden: boolean
+  nextMilestoneTitle: string | null
+  nextMilestoneCount: number | null
+}

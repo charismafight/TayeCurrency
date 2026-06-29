@@ -19,15 +19,17 @@ public class StarRecordsController : ControllerBase
     private readonly IFileUploadService _fileUploadService;
     private readonly IReasonTemplateService _reasonTemplateService;
     private readonly ITaskService _taskService;
+    private readonly IAchievementService _achievementService;
 
 
-    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService, IReasonTemplateService reasonTemplateService, ITaskService taskService)
+    public StarRecordsController(AppDbContext context, ILogger<StarRecordsController> logger, IFileUploadService fileUploadService, IReasonTemplateService reasonTemplateService, ITaskService taskService, IAchievementService achievementService)
     {
         _context = context;
         _logger = logger;
         _fileUploadService = fileUploadService;
         _reasonTemplateService = reasonTemplateService;
         _taskService = taskService;
+        _achievementService = achievementService;
     }
 
     /// <summary>
@@ -246,6 +248,9 @@ public class StarRecordsController : ControllerBase
             await _context.SaveChangesAsync();
 
             await _taskService.RefreshTodayTasksAsync(Constants.DefaultUserName);
+            // 保存后触发成就检查
+            await _achievementService.CheckAndUnlockAchievementsAsync(createDto.Reason, createDto.UserId);
+            await _achievementService.CheckHiddenAchievementsAsync(createDto.UserId);
 
             // 返回 DTO
             var dto = new StarRecordDto

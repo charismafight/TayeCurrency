@@ -50,6 +50,8 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<ILevelConfigService, LevelConfigService>();
 builder.Services.AddScoped<IReasonTemplateService, ReasonTemplateService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IAchievementService, AchievementService>();
+
 
 var app = builder.Build();
 

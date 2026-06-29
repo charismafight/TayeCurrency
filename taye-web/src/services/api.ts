@@ -1,4 +1,4 @@
-import type { HeroProfileData, TasksData, ActivitiesData } from '@/types/dashboard'
+import type { HeroProfileData, TasksData, ActivitiesData, CraftingItem, Achievement } from '@/types/dashboard'
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:5001'
@@ -42,6 +42,8 @@ export const dashboardApi = {
     if (type) params.append('type', type)
     return get<ActivitiesData>(`/dashboard/activities?${params.toString()}`)
   },
+  getCraftingItems: () => get<CraftingItem[]>('/dashboard/crafting'),
+  getAchievements: () => get<Achievement[]>('/achievement'),
 }
 
 export default apiClient

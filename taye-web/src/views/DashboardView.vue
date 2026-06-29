@@ -11,7 +11,7 @@
         <DailyTasks :data="tasksData" />
       </div>
       <div class="main-right">
-        <CraftingTable :items="craftingData" />
+        <RecipeBook :items="craftingData" />
       </div>
     </section>
 
@@ -33,8 +33,8 @@ import HeroProfile from '@/components/dashboard/HeroProfile.vue'
 import DailyTasks from '@/components/dashboard/DailyTasks.vue'
 import AchievementWall from '@/components/dashboard/AchievementWall.vue'
 import ActivityTimeline from '@/components/dashboard/ActivityTimeline.vue'
-import CraftingTable from '@/components/dashboard/CraftingTable.vue'
-import type { HeroProfileData, Achievement, TasksData, Activity, CraftingItem } from '@/types/dashboard'
+import RecipeBook from '@/components/dashboard/RecipeBook.vue'
+import type { HeroProfileData, Achievement, TasksData, CraftingItem } from '@/types/dashboard'
 import { dashboardApi } from '@/services/api'
 
 const heroData = ref<HeroProfileData>({
@@ -69,7 +69,6 @@ const loadTasks = async () => {
 }
 
 const achievementData = ref<Achievement[]>([])
-const activityData = ref<Activity[]>([])
 const craftingData = ref<CraftingItem[]>([])
 
 const loadProfile = async () => {
