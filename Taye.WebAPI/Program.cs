@@ -56,10 +56,10 @@ builder.Services.AddScoped<IAchievementService, AchievementService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.MapOpenApi();
-}
+//}
 
 //// 配置静态文件服务
 app.UseStaticFiles(); // 这会让 wwwroot 目录下的文件可访问
