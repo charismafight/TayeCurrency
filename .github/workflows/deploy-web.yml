@@ -3,6 +3,9 @@ name: Deploy Taye.Web to zhiren linux2 server
 on:
   push:
     branches: [main, master]
+    paths:
+      - "taye-web/**"
+      - ".github/workflows/deploy-web.yml"
   workflow_dispatch:
 
 jobs:

@@ -1,0 +1,60 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "Taye.WebAPI/**"
+      - "Taye.Shared/**"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Publish API
+        run: dotnet publish Taye.WebAPI/Taye.WebAPI.csproj -c Release -o ./publish
+
+      - name: Package publish
+        run: tar -czf api-publish.tar.gz -C ./publish .
+
+      - name: Upload to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          source: "api-publish.tar.gz"
+          target: "/tmp/taye-deploy/"
+
+      - name: Deploy and restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          script: |
+            cd /tmp/taye-deploy
+            sudo systemctl stop taye.service
+            tar -xzf api-publish.tar.gz -C /var/www/taye/
+            rm -f api-publish.tar.gz
+            sudo systemctl start taye.service
+            echo "✅ API 部署完成！"
