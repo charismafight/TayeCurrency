@@ -189,4 +189,11 @@ onMounted(() => loadData())
   padding: 30px 0;
   color: #94a3b8;
 }
+
+@media (max-width: 600px) {
+  .achievement-grid {
+    grid-template-columns: 1fr;
+    /* 手机端一列 */
+  }
+}
 </style>

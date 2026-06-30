@@ -232,4 +232,26 @@ onMounted(() => loadData())
   gap: 12px;
   margin-top: 12px;
 }
+
+@media (max-width: 600px) {
+  .timeline-item {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .item-reason {
+    flex: 1 1 100%;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .item-time {
+    min-width: 40px;
+    font-size: 11px;
+  }
+
+  .item-stars {
+    font-size: 13px;
+  }
+}
 </style>

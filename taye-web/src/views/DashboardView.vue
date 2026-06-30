@@ -95,7 +95,8 @@ onMounted(() => {
   min-height: 100vh;
   background: #0f172a;
   padding: 20px;
-  max-width: 1280px;
+  max-width: 100%;
+  overflow-x: hidden;
   margin: 0 auto;
 }
 
