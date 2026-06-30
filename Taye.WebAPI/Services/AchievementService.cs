@@ -11,6 +11,11 @@ public class AchievementService : IAchievementService
     private readonly AppDbContext _context;
     private readonly ILogger<AchievementService> _logger;
 
+    JsonSerializerOptions options = new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public AchievementService(AppDbContext context, ILogger<AchievementService> logger)
     {
         _context = context;
@@ -33,7 +38,7 @@ public class AchievementService : IAchievementService
 
         foreach (var def in definitions)
         {
-            var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson) ?? new();
+            var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson, options) ?? new();
             var player = playerAchievements.GetValueOrDefault(def.AchievementId);
 
             var currentCount = player?.CurrentCount ?? 0;
@@ -98,7 +103,7 @@ public class AchievementService : IAchievementService
             player.CurrentCount++;
             player.UpdatedAt = DateTime.UtcNow;
 
-            var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson) ?? new();
+            var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson, options) ?? new();
             var nextIndex = player.LastMilestoneIndex + 1;
 
             if (nextIndex < milestones.Count && player.CurrentCount >= milestones[nextIndex].Count)
@@ -142,12 +147,12 @@ public class AchievementService : IAchievementService
 
             if (alreadyUnlocked) continue;
 
-            var triggerConfig = JsonSerializer.Deserialize<Dictionary<string, object>>(def.TriggerConfig ?? "{}");
+            var triggerConfig = JsonSerializer.Deserialize<Dictionary<string, object>>(def.TriggerConfig ?? "{}", options);
             var isTriggered = await EvaluateHiddenTrigger(def.AchievementId, triggerConfig, effectiveUserId);
 
             if (isTriggered)
             {
-                var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson) ?? new();
+                var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson, options) ?? new();
                 if (milestones.Count == 0) continue;
 
                 var player = new PlayerAchievement
