@@ -66,6 +66,7 @@ app.UseStaticFiles(); // 这会让 wwwroot 目录下的文件可访问
 app.MapScalarApiReference();
 app.UseCors();
 app.UseHttpsRedirection();
+app.MapFallbackToFile("index.html");
 
 app.UseAuthorization();
 
