@@ -123,7 +123,7 @@ public class TaskService : ITaskService
             // 发放奖励（插入一条 StarRecord）
             var bonusRecord = new StarRecord
             {
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow,
                 StarCount = 1,
                 Reason = "🎉 完成全部每日任务",
                 Type = "Reward",

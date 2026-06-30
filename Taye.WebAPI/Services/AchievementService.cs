@@ -110,7 +110,7 @@ public class AchievementService : IAchievementService
                 // 发放奖励
                 var bonusRecord = new StarRecord
                 {
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     StarCount = milestone.Bonus,
                     Reason = $"🎉 解锁成就: {def.Name} - {milestone.Title}",
                     Type = "Reward",
@@ -163,7 +163,7 @@ public class AchievementService : IAchievementService
 
                 var bonusRecord = new StarRecord
                 {
-                    Date = DateTime.Now,
+                    Date = DateTime.UtcNow,
                     StarCount = milestones[0].Bonus,
                     Reason = $"🎉 解锁隐藏成就: {def.Name}",
                     Type = "Reward",

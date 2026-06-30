@@ -86,7 +86,7 @@ public partial class StarRecordViewModel : ObservableObject
     public StarRecordViewModel(IApiService apiService)
     {
         _apiService = apiService;
-        SelectedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        SelectedDate = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
 
         // 先设置 Type，然后手动调用加载
         Type = "奖励";

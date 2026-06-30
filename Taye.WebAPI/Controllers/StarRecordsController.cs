@@ -233,7 +233,7 @@ public class StarRecordsController : ControllerBase
             // 创建实体
             var record = new StarRecord
             {
-                Date = DateTime.Now,
+                Date = DateTime.UtcNow,
                 StarCount = createDto.StarCount,
                 Reason = createDto.Reason,
                 Type = createDto.Type,

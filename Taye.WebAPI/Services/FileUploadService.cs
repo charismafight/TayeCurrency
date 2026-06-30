@@ -51,7 +51,7 @@ public class FileUploadService : IFileUploadService
             }
 
             // 生成唯一文件名
-            var fileName = $"{DateTime.Now:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{extension}";
+            var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{extension}";
             var filePath = Path.Combine(uploadPath, fileName);
             var relativePath = Path.Combine(subFolder, fileName).Replace("\\", "/");
 
