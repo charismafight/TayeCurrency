@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using Taye.WebAPI.Data;
 using Taye.WebAPI.Services;
@@ -21,6 +20,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers().AddJsonOptions(options =>
     {
         // 配置 JSON 序列化
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.WriteIndented = true;
     });
@@ -51,7 +51,6 @@ builder.Services.AddScoped<ILevelConfigService, LevelConfigService>();
 builder.Services.AddScoped<IReasonTemplateService, ReasonTemplateService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IAchievementService, AchievementService>();
-
 
 var app = builder.Build();
 
