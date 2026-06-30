@@ -16,7 +16,7 @@
         <div class="hero-left">
           <div class="avatar-section">
             <div class="avatar-frame">
-              <n-avatar :size="88" :src="data.avatarUrl || ''" class="hero-avatar" />
+              <AvatarCarousel :images="avatarList" alt="Taye 头像" :interval="5000" />
               <div class="level-badge">
                 <span class="level-icon">⚡</span>
                 <span class="level-number">{{ currentLevel }}</span>
@@ -106,11 +106,24 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { HeroProfileData } from '@/types/dashboard'
+import AvatarCarousel from '@/components/common/AvatarCarousel.vue'
 import router from '@/router';
 
 const props = defineProps<{
   data: HeroProfileData
 }>()
+
+const avatarList = [
+  '/avatar/taye_1.jpg',
+  '/avatar/taye_2.jpg',
+  '/avatar/taye_3.jpg',
+  '/avatar/taye_4.jpg',
+  '/avatar/taye_5.jpg',
+  '/avatar/taye_6.jpg',
+  '/avatar/taye_7.jpg',
+  '/avatar/taye_8.jpg',
+  '/avatar/taye_9.jpg',
+]
 
 const emit = defineEmits<{
   (e: 'viewAchievements'): void
