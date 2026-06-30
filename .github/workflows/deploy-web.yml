@@ -61,7 +61,7 @@ jobs:
           script: |
             cd /tmp/taye-deploy/taye-web
             tar -xzf dist.tar.gz
-            sudo cp -r ./dist/* /var/www/taye/wwwroot/
+            sudo cp -r ./* /var/www/taye/wwwroot/
             sudo rm -rf /tmp/taye-deploy
             sudo systemctl restart taye.service
             echo "✅ 部署完成！"
