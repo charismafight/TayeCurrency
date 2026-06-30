@@ -19,18 +19,40 @@
 
     <!-- 成就网格 -->
     <div v-if="filteredItems.length > 0" class="achievement-grid">
-      <div v-for="item in filteredItems" :key="item.id" class="achievement-card"
-        :class="{ 'achievement-unlocked': item.isUnlocked, 'achievement-locked': !item.isUnlocked }">
+      <div v-for="item in filteredItems" :key="item.id" class="achievement-card" :class="{
+        'achievement-unlocked': item.isUnlocked,
+        'achievement-locked': !item.isUnlocked,
+        'achievement-maxed': item.isUnlocked && item.nextMilestoneCount === null
+      }">
         <div class="achievement-icon">{{ item.icon }}</div>
         <div class="achievement-name">{{ item.name }}</div>
-        <div class="achievement-progress">
-          {{ item.currentCount }} / {{ nextTarget(item) }}
+
+        <!-- 当前称号 -->
+        <div v-if="item.isUnlocked && item.unlockedMilestoneIndex >= 0" class="achievement-title">
+          🏅 {{ item.milestones[item.unlockedMilestoneIndex]?.title }}
         </div>
+        <div v-else class="achievement-title locked-title">
+          🔒 未解锁
+        </div>
+
+        <!-- 进度 -->
+        <div class="achievement-progress">
+          <span v-if="item.nextMilestoneCount !== null">
+            {{ item.currentCount }} / {{ item.nextMilestoneCount }}
+          </span>
+          <span v-else class="maxed-text">
+            🏆 已满级
+          </span>
+        </div>
+
+        <!-- 下一目标 -->
+        <div v-if="item.nextMilestoneTitle && item.nextMilestoneCount !== null" class="achievement-next-target">
+          下一目标：{{ item.nextMilestoneTitle }}
+        </div>
+
+        <!-- 状态标签 -->
         <div class="achievement-status">
           {{ item.isUnlocked ? '✅ 已解锁' : '🔒 进行中' }}
-        </div>
-        <div v-if="item.isUnlocked && item.unlockedMilestoneIndex >= 0" class="achievement-title">
-          {{ item.milestones[item.unlockedMilestoneIndex]?.title }}
         </div>
       </div>
     </div>
@@ -62,12 +84,6 @@ const filteredItems = computed(() => {
 const unlockedCount = computed(() => {
   return items.value.filter(i => i.isUnlocked).length
 })
-
-const nextTarget = (item: Achievement) => {
-  if (item.nextMilestoneCount !== null) return item.nextMilestoneCount
-  const last = item.milestones[item.milestones.length - 1]
-  return last?.count ?? item.currentCount
-}
 
 const loadData = async () => {
   try {
@@ -136,6 +152,10 @@ onMounted(() => loadData())
   padding: 12px;
   text-align: center;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .achievement-unlocked {
@@ -144,7 +164,12 @@ onMounted(() => loadData())
 }
 
 .achievement-locked {
-  opacity: 0.5;
+  opacity: 0.6;
+}
+
+.achievement-maxed {
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.04);
 }
 
 .achievement-icon {
@@ -158,9 +183,33 @@ onMounted(() => loadData())
   margin-top: 2px;
 }
 
+.achievement-title {
+  color: #fbbf24;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.locked-title {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 12px;
+}
+
 .achievement-progress {
   color: #94a3b8;
   font-size: 12px;
+  margin-top: 2px;
+}
+
+.maxed-text {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.achievement-next-target {
+  color: #94a3b8;
+  font-size: 11px;
   margin-top: 2px;
 }
 
@@ -177,11 +226,8 @@ onMounted(() => loadData())
   color: #64748b;
 }
 
-.achievement-title {
+.achievement-maxed .achievement-status {
   color: #fbbf24;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 2px;
 }
 
 .empty-state {
@@ -193,7 +239,6 @@ onMounted(() => loadData())
 @media (max-width: 600px) {
   .achievement-grid {
     grid-template-columns: 1fr;
-    /* 手机端一列 */
   }
 }
 </style>
