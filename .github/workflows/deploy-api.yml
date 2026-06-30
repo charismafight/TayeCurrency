@@ -23,13 +23,13 @@ jobs:
           dotnet-version: "9.0"
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Taye.WebAPI/Taye.WebAPI.csproj
 
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run: dotnet build Taye.WebAPI/Taye.WebAPI.csproj -c Release --no-restore
 
       - name: Publish API
-        run: dotnet publish Taye.WebAPI/Taye.WebAPI.csproj -c Release -o ./publish
+        run: dotnet publish Taye.WebAPI/Taye.WebAPI.csproj -c Release -o ./publish --no-build
 
       - name: Package publish
         run: tar -czf api-publish.tar.gz -C ./publish .
