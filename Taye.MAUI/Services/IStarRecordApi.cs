@@ -74,7 +74,7 @@ public interface IStarRecordApi
     /// 获取统计数据
     /// </summary>
     [Get("/api/StarRecords/statistics")]
-    Task<APIResponse<StarStatisticsDto>> GetStatistics([Query] string? userId = null);
+    Task<APIResponse<StarStatisticsDto>> GetStatistics([Query] string? userId = "Taye");
 
     /// <summary>
     /// 获取原因模板
