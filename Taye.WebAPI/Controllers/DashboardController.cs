@@ -46,8 +46,8 @@ public class DashboardController : ControllerBase
     {
         try
         {
-            var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
+            var today = DateTimeOffset.UtcNow.Date;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
             if (startOfWeek > today) startOfWeek = startOfWeek.AddDays(-7);
 
             var query = _context.StarRecords.AsQueryable();
@@ -82,15 +82,15 @@ public class DashboardController : ControllerBase
                 .SumAsync(r => -r.StarCount);
 
             var weeklyPunished = await query
-    .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Type == "Punish")
-    .SumAsync(r => Math.Abs(r.StarCount));
+                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Type == "Punish")
+                .SumAsync(r => Math.Abs(r.StarCount));
 
             // 计算等级
             var (rank, nextRank, expPercent) = await _levelConfigService.CalculateLevelAsync(totalStars);
 
             var dto = new DashboardProfileDto
             {
-                PlayerName = Constants.DefaultUserName, // 后续可从配置表读取
+                PlayerName = Constants.DefaultUserName,
                 StarBalance = starBalance,
                 YesterdayBalance = yesterdayBalance,
                 WeeklyEarned = weeklyEarned,
