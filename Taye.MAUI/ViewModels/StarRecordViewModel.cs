@@ -93,11 +93,15 @@ public partial class StarRecordViewModel : ObservableObject
         // 直接调用异步方法（不使用 await，避免阻塞）
         Task.Run(async () => await LoadReasonsByType(Type));
     }
+
+    private bool _isLoadingData = false;
+
     [RelayCommand]
     public async Task LoadData()
     {
-        if (IsLoading) return;  // 防止重复执行
+        if (_isLoadingData) return;
 
+        _isLoadingData = true;
         IsLoading = true;
         _currentPage = 1;
         _hasMoreData = true;
@@ -105,12 +109,13 @@ public partial class StarRecordViewModel : ObservableObject
 
         try
         {
-            await LoadRecords();        // 先等这个完成
-            await LoadStatistics();     // 再执行这个
+            await LoadRecords();
+            await LoadStatistics();
         }
         finally
         {
             IsLoading = false;
+            _isLoadingData = false;
         }
     }
 

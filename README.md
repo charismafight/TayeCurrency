@@ -159,8 +159,8 @@ The following table shows how daily behaviors are mapped to emerald rewards or p
 
 - [x] **Phase 1**: MAUI recording app with behavior logging, photo upload, and balance tracking
 - [x] **Phase 2**: Shared library and Web API foundation
-- [ ] **Phase 3**: Web Dashboard with Minecraft-themed visualization (in progress)
-- [ ] **Phase 4**: Achievement system with unlock animations and notifications
+- [x] **Phase 3**: Web Dashboard with Minecraft-themed visualization (in progress)
+- [x] **Phase 4**: Achievement system with unlock animations and notifications
 
 ---
 
