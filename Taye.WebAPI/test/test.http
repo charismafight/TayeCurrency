@@ -15,12 +15,15 @@ GET {{host}}/api/Achievement
 GET {{host}}/api/StarRecords/statistics?userId=Taye
 
 
+### ========================================
+### 奖励类（触发成就）
+### ========================================
+
 ### 4. 创建记录 - 吃饭光盘（触发成就）
 POST {{host}}/api/StarRecords
 Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=1&Reason=吃饭光盘&Type=Gain&UserId=Taye
-
 
 ### 5. 创建记录 - 满分猎人
 POST {{host}}/api/StarRecords
@@ -28,13 +31,11 @@ Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=12&Reason=考试获得100分（满分100）&Type=Gain&UserId=Taye
 
-
 ### 6. 创建记录 - 早睡达人
 POST {{host}}/api/StarRecords
 Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=1&Reason=晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床&Type=Gain&UserId=Taye
-
 
 ### 7. 创建记录 - 听写大师
 POST {{host}}/api/StarRecords
@@ -42,9 +43,143 @@ Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
 
-
 ### 8. 创建记录 - 默写古诗全对
 POST {{host}}/api/StarRecords
 Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=2&Reason=默写古诗全对&Type=Gain&UserId=Taye
+
+### 9. 创建记录 - 写话优秀
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=3&Reason=写话（优秀）&Type=Gain&UserId=Taye
+
+### 10. 创建记录 - 作业A+
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=1&Reason=拼写本、写字书或者课练A+甲+&Type=Gain&UserId=Taye
+
+### 11. 创建记录 - 老师表扬
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=6&Reason=老师表扬学校优秀表现&Type=Gain&UserId=Taye
+
+### 12. 创建记录 - Khan完成unit
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=6&Reason=Khan完成一个unit的学习&Type=Gain&UserId=Taye
+
+### 13. 创建记录 - 整理餐桌
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=1&Reason=吃完饭清理桌面并收碗&Type=Gain&UserId=Taye
+
+### 14. 创建记录 - 主动作业
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=1&Reason=主动完成常规作业&Type=Gain&UserId=Taye
+
+
+### ========================================
+### 批量测试（连续触发多个成就）
+### ========================================
+
+### 15. 批量 - 听写大师（连续5次）
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
+
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
+
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
+
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
+
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
+
+
+### ========================================
+### 查询验证
+### ========================================
+
+### 16. 查看玩家成就进度（验证解锁）
+GET {{host}}/api/Achievement
+
+### 17. 查看星星余额（验证奖励）
+GET {{host}}/api/StarRecords/statistics?userId=Taye
+
+### 18. 查看最近记录（验证成就记录）
+GET {{host}}/api/StarRecords/paged?page=1&pageSize=20&userId=Taye
+
+
+### ========================================
+### 重置成就（测试用）
+### ========================================
+
+### 19. 重置玩家成就进度
+DELETE {{host}}/api/Achievement/reset?userId=Taye
+
+
+### ========================================
+### 消费类（不触发成就）
+### ========================================
+
+### 20. 创建记录 - 兑换游戏时长
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-1&Reason=兑换游戏时长（每5分钟）&Type=Spend&UserId=Taye
+
+### 21. 创建记录 - 兑换零食
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-1&Reason=兑换零食（每1块钱）&Type=Spend&UserId=Taye
+
+### 22. 创建记录 - 兑换玩具
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-1&Reason=兑换玩具（每1块钱）&Type=Spend&UserId=Taye
+
+
+### ========================================
+### 惩罚类（不触发成就）
+### ========================================
+
+### 23. 创建记录 - 忘记洗脸
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-1&Reason=起床或者晚上睡觉前忘记洗脸（或洗澡时忘记洗脸）&Type=Punish&UserId=Taye
+
+### 24. 创建记录 - 忘记冲厕所
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-1&Reason=尿尿忘记冲厕所&Type=Punish&UserId=Taye
+
+### 25. 创建记录 - 老师反馈违规
+POST {{host}}/api/StarRecords
+Content-Type: application/x-www-form-urlencoded
+
+Date=2026-07-01T00:00:00Z&StarCount=-12&Reason=老师反馈在学校违规违纪行为&Type=Punish&UserId=Taye
