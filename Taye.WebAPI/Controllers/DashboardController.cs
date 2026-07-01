@@ -46,7 +46,7 @@ public class DashboardController : ControllerBase
     {
         try
         {
-            var today = DateTimeOffset.UtcNow.Date;
+            var today = DateTime.UtcNow.Date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
             if (startOfWeek > today) startOfWeek = startOfWeek.AddDays(-7);
 
@@ -66,23 +66,22 @@ public class DashboardController : ControllerBase
                 .SumAsync(r => r.StarCount);
 
             // 昨日余额（昨天的数据）
-            var yesterday = today.AddDays(-1);
             var yesterdayBalance = await query
-                .Where(r => !r.IsDeleted && r.Date < today)
+                .Where(r => !r.IsDeleted && r.Date.UtcDateTime < today)
                 .SumAsync(r => r.StarCount);
 
             // 本周获得
             var weeklyEarned = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.StarCount > 0)
+                .Where(r => !r.IsDeleted && r.Date.UtcDateTime >= startOfWeek && r.StarCount > 0)
                 .SumAsync(r => r.StarCount);
 
             // 本周消费（取绝对值）
             var weeklySpent = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.StarCount < 0)
+                .Where(r => !r.IsDeleted && r.Date.UtcDateTime >= startOfWeek && r.StarCount < 0)
                 .SumAsync(r => -r.StarCount);
 
             var weeklyPunished = await query
-                .Where(r => !r.IsDeleted && r.Date >= startOfWeek && r.Type == "Punish")
+                .Where(r => !r.IsDeleted && r.Date.UtcDateTime >= startOfWeek && r.Type == "Punish")
                 .SumAsync(r => Math.Abs(r.StarCount));
 
             // 计算等级
