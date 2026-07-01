@@ -85,7 +85,7 @@ public class ReasonTemplateService : IReasonTemplateService
     {
         try
         {
-            template.CreatedAt = DateTime.UtcNow;
+            template.CreatedAt = DateTimeOffset.UtcNow;
             _context.ReasonTemplates.Add(template);
             await _context.SaveChangesAsync();
             return true;
@@ -110,7 +110,7 @@ public class ReasonTemplateService : IReasonTemplateService
             existing.Notes = template.Notes;
             existing.SortOrder = template.SortOrder;
             existing.IsActive = template.IsActive;
-            existing.UpdatedAt = DateTime.UtcNow;
+            existing.UpdatedAt = DateTimeOffset.UtcNow;
 
             await _context.SaveChangesAsync();
             return true;
@@ -131,7 +131,7 @@ public class ReasonTemplateService : IReasonTemplateService
 
             // 软删除
             template.IsActive = false;
-            template.UpdatedAt = DateTime.UtcNow;
+            template.UpdatedAt = DateTimeOffset.UtcNow;
             await _context.SaveChangesAsync();
             return true;
         }

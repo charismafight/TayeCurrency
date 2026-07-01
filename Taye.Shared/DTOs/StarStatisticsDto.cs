@@ -68,7 +68,7 @@ public class StarStatisticsDto
 /// </summary>
 public class DailyStarDto
 {
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
     public int Gain { get; set; }
     public int Spend { get; set; }
     public int Net => Gain - Spend;

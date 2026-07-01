@@ -18,7 +18,7 @@ public class StarRecord
     /// 记录日期
     /// </summary>
     [Required]
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
 
     /// <summary>
     /// 星星数量（正数=获得，负数=消费）
@@ -67,12 +67,12 @@ public class StarRecord
     /// <summary>
     /// 创建时间
     /// </summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
     /// 更新时间
     /// </summary>
-    public DateTime? UpdatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     /// <summary>
     /// 是否已删除

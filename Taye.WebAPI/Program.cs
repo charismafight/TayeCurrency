@@ -44,7 +44,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 // 添加这个配置：全局设置 DateTime 为 UTC
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<ILevelConfigService, LevelConfigService>();

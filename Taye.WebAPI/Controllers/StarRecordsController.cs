@@ -233,7 +233,7 @@ public class StarRecordsController : ControllerBase
             // 创建实体
             var record = new StarRecord
             {
-                Date = DateTime.UtcNow,
+                Date = DateTimeOffset.UtcNow,
                 StarCount = createDto.StarCount,
                 Reason = createDto.Reason,
                 Type = createDto.Type,
@@ -241,7 +241,7 @@ public class StarRecordsController : ControllerBase
                 ImagePath = imagePath,
                 ImageFileName = imageFileName,
                 UserId = Constants.DefaultUserName,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow,
             };
 
             _context.StarRecords.Add(record);
@@ -331,7 +331,7 @@ public class StarRecordsController : ControllerBase
             record.Reason = updateDto.Reason;
             record.Type = updateDto.Type;
             record.Notes = updateDto.Notes;
-            record.UpdatedAt = DateTime.UtcNow;
+            record.UpdatedAt = DateTimeOffset.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -434,27 +434,26 @@ public class StarRecordsController : ControllerBase
             if (!string.IsNullOrEmpty(userId))
                 query = query.Where(r => r.UserId == userId);
 
-            var today = DateTime.Today;
+            var today = DateTime.UtcNow.Date;
             var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
-            var startOfMonth = new DateTime(today.Year, today.Month, 1);
+            var startOfMonth = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            // 一次查询聚合所有数据
             var stats = await query
                 .GroupBy(r => 1)
                 .Select(g => new
                 {
                     TotalGain = g.Sum(r => r.StarCount > 0 ? r.StarCount : 0),
                     TotalSpend = g.Sum(r => r.StarCount < 0 ? -r.StarCount : 0),
-                    TodayGain = g.Sum(r => r.Date == today && r.StarCount > 0 ? r.StarCount : 0),
-                    TodaySpend = g.Sum(r => r.Date == today && r.StarCount < 0 ? -r.StarCount : 0),
-                    WeekGain = g.Sum(r => r.Date >= startOfWeek && r.StarCount > 0 ? r.StarCount : 0),
-                    WeekSpend = g.Sum(r => r.Date >= startOfWeek && r.StarCount < 0 ? -r.StarCount : 0),
-                    MonthGain = g.Sum(r => r.Date >= startOfMonth && r.StarCount > 0 ? r.StarCount : 0),
-                    MonthSpend = g.Sum(r => r.Date >= startOfMonth && r.StarCount < 0 ? -r.StarCount : 0)
+                    TodayGain = g.Sum(r => r.Date.UtcDateTime == today && r.StarCount > 0 ? r.StarCount : 0),
+                    TodaySpend = g.Sum(r => r.Date.UtcDateTime == today && r.StarCount < 0 ? -r.StarCount : 0),
+                    WeekGain = g.Sum(r => r.Date.UtcDateTime >= startOfWeek && r.StarCount > 0 ? r.StarCount : 0),
+                    WeekSpend = g.Sum(r => r.Date.UtcDateTime >= startOfWeek && r.StarCount < 0 ? -r.StarCount : 0),
+                    MonthGain = g.Sum(r => r.Date.UtcDateTime >= startOfMonth && r.StarCount > 0 ? r.StarCount : 0),
+                    MonthSpend = g.Sum(r => r.Date.UtcDateTime >= startOfMonth && r.StarCount < 0 ? -r.StarCount : 0)
                 })
                 .FirstOrDefaultAsync();
 
-            // 最近7天（一次查询）
+            // 最近7天
             var last7Days = await query
                 .Where(r => r.Date >= today.AddDays(-6))
                 .GroupBy(r => r.Date.Date)
@@ -466,7 +465,7 @@ public class StarRecordsController : ControllerBase
                 })
                 .ToListAsync();
 
-            // 补全最近7天（没有记录的天数补 0）
+            // 补全最近7天
             var recentDays = new List<DailyStarDto>();
             for (int i = 6; i >= 0; i--)
             {

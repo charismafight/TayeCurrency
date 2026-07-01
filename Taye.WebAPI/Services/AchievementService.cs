@@ -95,13 +95,13 @@ public class AchievementService : IAchievementService
                     CurrentCount = 0,
                     LastMilestoneIndex = -1,
                     UserId = effectiveUserId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow
                 };
                 _context.PlayerAchievements.Add(player);
             }
 
             player.CurrentCount++;
-            player.UpdatedAt = DateTime.UtcNow;
+            player.UpdatedAt = DateTimeOffset.UtcNow;
 
             var milestones = JsonSerializer.Deserialize<List<MilestoneDto>>(def.MilestonesJson, options) ?? new();
             var nextIndex = player.LastMilestoneIndex + 1;
@@ -115,13 +115,13 @@ public class AchievementService : IAchievementService
                 // 发放奖励
                 var bonusRecord = new StarRecord
                 {
-                    Date = DateTime.UtcNow,
+                    Date = DateTimeOffset.UtcNow,
                     StarCount = milestone.Bonus,
                     Reason = $"🎉 解锁成就: {def.Name} - {milestone.Title}",
                     Type = "Reward",
                     Notes = "成就奖励",
                     UserId = effectiveUserId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow
                 };
                 _context.StarRecords.Add(bonusRecord);
                 _logger.LogInformation("解锁成就: {Name} - {Title}", def.Name, milestone.Title);
@@ -162,19 +162,19 @@ public class AchievementService : IAchievementService
                     CurrentCount = 1,
                     LastMilestoneIndex = 0,
                     UserId = effectiveUserId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow
                 };
                 _context.PlayerAchievements.Add(player);
 
                 var bonusRecord = new StarRecord
                 {
-                    Date = DateTime.UtcNow,
+                    Date = DateTimeOffset.UtcNow,
                     StarCount = milestones[0].Bonus,
                     Reason = $"🎉 解锁隐藏成就: {def.Name}",
                     Type = "Reward",
                     Notes = "隐藏成就奖励",
                     UserId = effectiveUserId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow
                 };
                 _context.StarRecords.Add(bonusRecord);
                 await _context.SaveChangesAsync();
@@ -200,13 +200,15 @@ public class AchievementService : IAchievementService
     private async Task<bool> CheckEarlyBird(string userId)
     {
         // 连续 3 天 21:30 前上床
-        var today = DateTime.Today;
+        var today = DateTimeOffset.UtcNow.UtcDateTime.Date;
+        var threeDaysAgo = today.AddDays(-3);
+
         var records = await _context.StarRecords
             .Where(r => r.UserId == userId
                 && !r.IsDeleted
-                && r.Date >= today.AddDays(-3)
+                && r.Date.UtcDateTime >= threeDaysAgo
                 && r.Reason.Contains("21:30前"))
-            .GroupBy(r => r.Date.Date)
+            .GroupBy(r => r.Date.UtcDateTime.Date)
             .Select(g => g.Count())
             .ToListAsync();
 
@@ -226,7 +228,7 @@ public class AchievementService : IAchievementService
     private async Task<bool> CheckSelfDiscipline(string userId)
     {
         // 本周每日任务全部完成 ≥ 5 天
-        var today = DateTime.Today;
+        var today = DateTimeOffset.UtcNow.Date;
         var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1);
         var completions = await _context.TaskCompletions
             .Where(t => t.UserId == userId

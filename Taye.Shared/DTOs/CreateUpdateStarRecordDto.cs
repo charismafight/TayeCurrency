@@ -10,7 +10,7 @@ namespace Taye.Shared.DTOs;
 public class CreateUpdateStarRecordDto
 {
     [Required(ErrorMessage = "日期不能为空")]
-    public DateTime Date { get; set; } = DateTime.Today;
+    public DateTimeOffset Date { get; set; }
 
     [Required(ErrorMessage = "星星数量不能为空")]
     [Range(-9999, 9999, ErrorMessage = "星星数量范围 -9999 到 9999")]

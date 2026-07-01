@@ -72,7 +72,7 @@ public class TaskService : ITaskService
 
     public async Task<TasksResponseDto> GetTodayTasksAsync(string? userId = null)
     {
-        var today = DateTime.Today;
+        var today = DateTimeOffset.UtcNow.Date;
         return await GetTasksByDateInternalAsync(today, userId);
     }
 
@@ -123,12 +123,12 @@ public class TaskService : ITaskService
             // 发放奖励（插入一条 StarRecord）
             var bonusRecord = new StarRecord
             {
-                Date = DateTime.UtcNow,
+                Date = DateTimeOffset.UtcNow,
                 StarCount = 1,
                 Reason = "🎉 完成全部每日任务",
                 Type = "Reward",
                 Notes = "每日任务奖励",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow
             };
             _context.StarRecords.Add(bonusRecord);
             await _context.SaveChangesAsync();
@@ -147,14 +147,14 @@ public class TaskService : ITaskService
                     IsCompleted = true,
                     BonusEarned = true,
                     UserId = userId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTimeOffset.UtcNow
                 };
                 _context.TaskCompletions.Add(completion);
             }
             else
             {
                 completion.BonusEarned = true;
-                completion.UpdatedAt = DateTime.UtcNow;
+                completion.UpdatedAt = DateTimeOffset.UtcNow;
             }
             await _context.SaveChangesAsync();
 
@@ -175,7 +175,7 @@ public class TaskService : ITaskService
                 IsCompleted = true,
                 BonusEarned = true,
                 UserId = userId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow
             };
             _context.TaskCompletions.Add(completion);
             await _context.SaveChangesAsync();
@@ -193,7 +193,7 @@ public class TaskService : ITaskService
 
     public async Task RefreshTodayTasksAsync(string? userId = null)
     {
-        var today = DateTime.Today;
+        var today = DateTimeOffset.UtcNow.Date;
         var periodKey = today.ToString("yyyy-MM-dd");
 
         // 删除今日的完成记录（重新计算）

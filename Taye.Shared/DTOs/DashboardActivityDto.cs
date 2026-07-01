@@ -9,7 +9,7 @@ namespace Taye.Shared.DTOs
     public class DashboardActivityDto
     {
         public int Id { get; set; }
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         public int StarCount { get; set; }
         public string Reason { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;

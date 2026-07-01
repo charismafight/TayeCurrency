@@ -1,5 +1,5 @@
 ### ========================================
-### 成就测试 - 使用 PascalCase 字段名
+### 成就测试 - 全部统一用表单格式
 ### ========================================
 
 @host = http://localhost:5257
@@ -16,7 +16,7 @@ GET {{host}}/api/StarRecords/statistics?userId=Taye
 
 
 ### 4. 创建记录 - 吃饭光盘（触发成就）
-POST http://localhost:5257/api/StarRecords
+POST {{host}}/api/StarRecords
 Content-Type: application/x-www-form-urlencoded
 
 Date=2026-07-01T00:00:00Z&StarCount=1&Reason=吃饭光盘&Type=Gain&UserId=Taye
@@ -24,55 +24,27 @@ Date=2026-07-01T00:00:00Z&StarCount=1&Reason=吃饭光盘&Type=Gain&UserId=Taye
 
 ### 5. 创建记录 - 满分猎人
 POST {{host}}/api/StarRecords
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "Date": "2026-07-01T00:00:00Z",
-  "StarCount": 12,
-  "Reason": "考试获得100分（满分100）",
-  "Type": "Gain",
-  "Notes": null,
-  "UserId": "Taye"
-}
+Date=2026-07-01T00:00:00Z&StarCount=12&Reason=考试获得100分（满分100）&Type=Gain&UserId=Taye
 
 
 ### 6. 创建记录 - 早睡达人
 POST {{host}}/api/StarRecords
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "Date": "2026-07-01T00:00:00Z",
-  "StarCount": 1,
-  "Reason": "晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床",
-  "Type": "Gain",
-  "Notes": null,
-  "UserId": "Taye"
-}
+Date=2026-07-01T00:00:00Z&StarCount=1&Reason=晚上21:30前收好书包，洗漱完毕，换好睡衣，上自己的床&Type=Gain&UserId=Taye
 
 
 ### 7. 创建记录 - 听写大师
 POST {{host}}/api/StarRecords
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "Date": "2026-07-01T00:00:00Z",
-  "StarCount": 2,
-  "Reason": "听写A+甲+",
-  "Type": "Gain",
-  "Notes": null,
-  "UserId": "Taye"
-}
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=听写A+甲+&Type=Gain&UserId=Taye
 
 
 ### 8. 创建记录 - 默写古诗全对
 POST {{host}}/api/StarRecords
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 
-{
-  "Date": "2026-07-01T00:00:00Z",
-  "StarCount": 2,
-  "Reason": "默写古诗全对",
-  "Type": "Gain",
-  "Notes": null,
-  "UserId": "Taye"
-}
+Date=2026-07-01T00:00:00Z&StarCount=2&Reason=默写古诗全对&Type=Gain&UserId=Taye
