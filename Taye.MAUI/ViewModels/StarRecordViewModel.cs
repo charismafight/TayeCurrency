@@ -140,8 +140,10 @@ public partial class StarRecordViewModel : ObservableObject
             };
         }
 
+        var StartDateUtc = StartDate.ToUniversalTime();
+        var EndDateUtc = EndDate.AddDays(1).ToUniversalTime();
         // 调用分页 API
-        var result = await _apiService.GetRecordsPagedAsync(StartDate, EndDate.AddDays(1), typeValue, _currentPage, PageSize);
+        var result = await _apiService.GetRecordsPagedAsync(StartDateUtc, EndDateUtc, typeValue, _currentPage, PageSize);
 
         if (result?.Items == null) return;
 

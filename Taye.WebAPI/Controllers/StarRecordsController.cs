@@ -90,8 +90,8 @@ public class StarRecordsController : ControllerBase
     [HttpGet("paged")]
     [ProducesResponseType(typeof(APIResponse<PagedResult<StarRecordDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult<APIResponse<PagedResult<StarRecordDto>>>> GetRecordsPaged(
-        [FromQuery] DateTime? startDate,
-        [FromQuery] DateTime? endDate,
+        [FromQuery] DateTimeOffset? startDate,
+        [FromQuery] DateTimeOffset? endDate,
         [FromQuery] string? type,
         [FromQuery] string? userId = null,
         [FromQuery] int page = 1,

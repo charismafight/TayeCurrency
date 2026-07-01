@@ -8,14 +8,14 @@ namespace Taye.MAUI.Services;
 public interface IApiService
 {
     // 原有方法（获取所有记录）
-    Task<List<StarRecordDto>> GetRecordsAsync(DateTime? startDate = null, DateTime? endDate = null, string? type = null);
+    Task<List<StarRecordDto>> GetRecordsAsync(DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, string? type = null);
 
     // 新增分页方法
-    Task<PagedResult<StarRecordDto>> GetRecordsPagedAsync(DateTime? startDate = null, DateTime? endDate = null, string? type = null, int page = 1, int pageSize = 20);
+    Task<PagedResult<StarRecordDto>> GetRecordsPagedAsync(DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, string? type = null, int page = 1, int pageSize = 20);
 
     Task<StarRecordDto?> GetRecordAsync(int id);
-    Task<bool> CreateRecordAsync(DateTime date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null);
-    Task<bool> UpdateRecordAsync(int id, DateTime date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null);
+    Task<bool> CreateRecordAsync(DateTimeOffset date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null);
+    Task<bool> UpdateRecordAsync(int id, DateTimeOffset date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null);
     Task<bool> DeleteRecordAsync(int id);
     Task<StarStatisticsDto?> GetStatisticsAsync();
 
@@ -48,7 +48,7 @@ public class ApiService : IApiService
     }
 
     // 原有方法（获取所有记录，不分页）
-    public async Task<List<StarRecordDto>> GetRecordsAsync(DateTime? startDate = null, DateTime? endDate = null, string? type = null)
+    public async Task<List<StarRecordDto>> GetRecordsAsync(DateTimeOffset? startDate = null, DateTimeOffset? endDate = null, string? type = null)
     {
         try
         {
@@ -69,8 +69,8 @@ public class ApiService : IApiService
 
     // 分页方法 - 由于后端可能不支持分页，使用客户端分页
     public async Task<PagedResult<StarRecordDto>> GetRecordsPagedAsync(
-    DateTime? startDate = null,
-    DateTime? endDate = null,
+    DateTimeOffset? startDate = null,
+    DateTimeOffset? endDate = null,
     string? type = null,
     int page = 1,
     int pageSize = 20)
@@ -111,7 +111,7 @@ public class ApiService : IApiService
         }
     }
 
-    public async Task<bool> CreateRecordAsync(DateTime date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null)
+    public async Task<bool> CreateRecordAsync(DateTimeOffset date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null)
     {
         try
         {
@@ -145,7 +145,7 @@ public class ApiService : IApiService
         }
     }
 
-    public async Task<bool> UpdateRecordAsync(int id, DateTime date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null)
+    public async Task<bool> UpdateRecordAsync(int id, DateTimeOffset date, int starCount, string reason, string type, string? notes, Stream? imageStream = null, string? imageFileName = null)
     {
         try
         {

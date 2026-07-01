@@ -10,8 +10,8 @@ public interface IStarRecordApi
     /// </summary>
     [Get("/api/StarRecords")]
     Task<APIResponse<List<StarRecordDto>>> GetRecords(
-        [Query] DateTime? startDate = null,
-        [Query] DateTime? endDate = null,
+        [Query] DateTimeOffset? startDate = null,
+        [Query] DateTimeOffset? endDate = null,
         [Query] string? type = null,
         [Query] string? userId = null);
 
@@ -37,8 +37,8 @@ public interface IStarRecordApi
     // 新增分页方法
     [Get("/api/StarRecords/paged")]
     Task<APIResponse<PagedResult<StarRecordDto>>> GetRecordsPaged(
-        [Query] DateTime? startDate = null,
-        [Query] DateTime? endDate = null,
+        [Query] DateTimeOffset? startDate = null,
+        [Query] DateTimeOffset? endDate = null,
         [Query] string? type = null,
         [Query] string? userId = null,
         [Query] int page = 1,
